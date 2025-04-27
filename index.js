@@ -1,12 +1,18 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
-const cloudinaryRoutes = require('./routes/cloudinary');
+require('dotenv').config();
 
+const imagesRouter = require('./routes/cloudinary');
 const app = express();
+const port = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
-app.use(fileUpload({ useTempFiles: true }));
-app.use('/images', cloudinaryRoutes);
-const port = process.env.PORT || 3000;
-app.listen(port);
+app.use(fileUpload());
+
+app.use('/api/images', imagesRouter);
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
