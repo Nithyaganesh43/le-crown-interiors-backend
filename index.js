@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(fileUpload());
 
 app.use('/api/images', imagesRouter);
-
+app.use('/check',(req , res )=>res.send('ok'));
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

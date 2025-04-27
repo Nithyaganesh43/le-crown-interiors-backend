@@ -13,15 +13,31 @@ cloudinary.config({
 
 const dataFilePath = path.join(__dirname, '../data/imageURLs.json');
 
+// Ensure the data directory exists
+const ensureDataDirectoryExists = () => {
+  const dir = path.dirname(dataFilePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+// Ensure the file exists and create it if necessary
 const readData = () => {
+  ensureDataDirectoryExists();
+
   if (fs.existsSync(dataFilePath)) {
     const data = fs.readFileSync(dataFilePath);
     return JSON.parse(data);
   }
+
+  // If the file doesn't exist, create it with an empty object
+  saveData({});
   return {};
 };
 
+// Save data to the file
 const saveData = (data) => {
+  ensureDataDirectoryExists();
   fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
 };
 
@@ -40,19 +56,26 @@ router.post('/upload', async (req, res) => {
     : [req.files.images];
   const urls = [];
 
-  for (const file of files) {
-    const uploadResponse = await cloudinary.uploader.upload(file.tempFilePath, {
-      folder,
-    });
-    urls.push(uploadResponse.secure_url);
+  try {
+    for (const file of files) {
+      const uploadResponse = await cloudinary.uploader.upload(
+        file.tempFilePath,
+        { folder }
+      );
 
-    const data = readData();
-    if (!data[folder]) data[folder] = [];
-    data[folder].push(uploadResponse.secure_url);
-    saveData(data);
+      urls.push(uploadResponse.secure_url);
+
+      const data = readData();
+      if (!data[folder]) data[folder] = [];
+      data[folder].push(uploadResponse.secure_url);
+      saveData(data);
+    }
+
+    res.json({ urls });
+  } catch (error) {
+    console.error('Cloudinary upload failed:', error);
+    res.status(500).json({ error: 'Failed to upload images' });
   }
-
-  res.json({ urls });
 });
 
 router.get('/all', (req, res) => {
@@ -62,44 +85,61 @@ router.get('/all', (req, res) => {
 
 router.get('/list', async (req, res) => {
   const folder = req.query.folder;
-  const result = await cloudinary.search
-    .expression(`folder:${folder}/*`)
-    .max_results(100)
-    .execute();
-  const urls = result.resources.map((img) => img.secure_url);
 
-  const data = readData();
-  data[folder] = urls;
-  saveData(data);
+  try {
+    const result = await cloudinary.search
+      .expression(`folder:${folder}/*`)
+      .max_results(100)
+      .execute();
 
-  res.json({ urls });
+    const urls = result.resources.map((img) => img.secure_url);
+
+    const data = readData();
+    data[folder] = urls;
+    saveData(data);
+
+    res.json({ urls });
+  } catch (error) {
+    console.error('Cloudinary folder search failed:', error);
+    res.status(500).json({ error: 'Failed to fetch folder images' });
+  }
 });
 
 router.delete('/delete', async (req, res) => {
   const public_id = req.body.public_id;
 
-  await cloudinary.uploader.destroy(public_id);
+  try {
+    await cloudinary.uploader.destroy(public_id);
 
-  const data = readData();
-  for (const folder in data) {
-    data[folder] = data[folder].filter((url) => !url.includes(public_id));
+    const data = readData();
+    for (const folder in data) {
+      data[folder] = data[folder].filter((url) => !url.includes(public_id));
+    }
+    saveData(data);
+
+    res.json({ msg: 'Image deleted' });
+  } catch (error) {
+    console.error('Cloudinary delete failed:', error);
+    res.status(500).json({ error: 'Failed to delete image' });
   }
-  saveData(data);
-
-  res.json({ msg: 'Image deleted' });
 });
 
 router.delete('/delete-folder', async (req, res) => {
   const folder = req.body.folder;
 
-  await cloudinary.api.delete_resources_by_prefix(folder + '/');
-  await cloudinary.api.delete_folder(folder);
+  try {
+    await cloudinary.api.delete_resources_by_prefix(folder + '/');
+    await cloudinary.api.delete_folder(folder);
 
-  const data = readData();
-  delete data[folder];
-  saveData(data);
+    const data = readData();
+    delete data[folder];
+    saveData(data);
 
-  res.json({ msg: 'Folder deleted' });
+    res.json({ msg: 'Folder deleted' });
+  } catch (error) {
+    console.error('Cloudinary folder deletion failed:', error);
+    res.status(500).json({ error: 'Failed to delete folder' });
+  }
 });
 
 module.exports = router;
