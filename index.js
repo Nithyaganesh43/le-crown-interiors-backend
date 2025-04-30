@@ -8,7 +8,7 @@ app.use(express.json());
 const allowedOrigins = ['https://v0-image-management-system.vercel.app'];
 app.use(cors({ origin: allowedOrigins }));
 
-app.use('/image', imageRoute);
+app.use('/', imageRoute);
 
 connectToDb()
   .then(() => {
