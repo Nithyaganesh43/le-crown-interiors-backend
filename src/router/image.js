@@ -66,7 +66,7 @@ router.delete('/delete',auth, async (req, res) => {
   }
 });
 
-router.get('/all',auth, async (req, res) => {
+router.post('/all',auth, async (req, res) => {
   const data = await Image.aggregate([
     { $group: { _id: '$folderName', images: { $push: '$$ROOT' } } },
     { $project: { _id: 0, folderName: '$_id', images: 1 } },
