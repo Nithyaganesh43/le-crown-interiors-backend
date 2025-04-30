@@ -3,8 +3,8 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { uploadImg, deleteImg } = require('../src/util/cloudinary');
-const Image = require('../src/model/image');
+const { uploadImg, deleteImg } = require('../util/cloudinary')
+const Image = require('../model/image');
 
 const upload = multer({ storage: multer.memoryStorage() });
 

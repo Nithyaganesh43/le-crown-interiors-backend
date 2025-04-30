@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectToDb = require('./src/config/mongoos');
-const imageRoute = require('./routes/image');
+const imageRoute = require('./src/router/image');
 
 const app = express();
 app.use(express.json());
