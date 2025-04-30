@@ -8,7 +8,12 @@ const Image = require('../model/image');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/upload', upload.single('img'), async (req, res) => {
+const auth = (req, res, next) => {
+  if (req.body.PASSWORD === process.env.PASSWORD) return next();
+  res.status(400).send('Access Denied');
+};
+
+router.post('/upload',auth, upload.single('img'), async (req, res) => {
   try {
     const { name, title, content, description, folderName } = req.body;
     const dir = path.join(__dirname, '../tmp');
@@ -32,7 +37,7 @@ router.post('/upload', upload.single('img'), async (req, res) => {
   }
 });
 
-router.delete('/delete', async (req, res) => {
+router.delete('/delete',auth, async (req, res) => {
   try {
     const public_id = req.body.public_id;
     if (!public_id)
@@ -61,7 +66,7 @@ router.delete('/delete', async (req, res) => {
   }
 });
 
-router.get('/all', async (req, res) => {
+router.get('/all',auth, async (req, res) => {
   const data = await Image.aggregate([
     { $group: { _id: '$folderName', images: { $push: '$$ROOT' } } },
     { $project: { _id: 0, folderName: '$_id', images: 1 } },

@@ -5,8 +5,9 @@ const imageRoute = require('./src/router/image');
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = ['http://localhost:5500', 'http://127.0.0.1:5500'];
+const allowedOrigins = ['https://v0-image-management-system.vercel.app'];
 app.use(cors({ origin: allowedOrigins }));
+
 app.use('/image', imageRoute);
 
 connectToDb()
