@@ -1,17 +1,17 @@
 const express = require('express');
-const fileUpload = require('express-fileupload');
 const cors = require('cors');
-require('dotenv').config();
-const imagesRouter = require('./routes/cloudinary');
+const connectToDb = require('./src/config/mongoos');
+const imageRoute = require('./routes/image');
+
 const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(cors());
 app.use(express.json());
-app.use(fileUpload());
+const allowedOrigins = ['http://localhost:5500', 'http://127.0.0.1:5500'];
+app.use(cors({ origin: allowedOrigins }));
+app.use('/image', imageRoute);
 
-app.use('/api/images', imagesRouter);
-app.use('/check',(req , res )=>res.send('ok'));
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+connectToDb()
+  .then(() => {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => console.log(`Server running on port ${port}`));
+  })
+  .catch((err) => console.error(err));
