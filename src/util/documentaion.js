@@ -154,7 +154,7 @@ module.exports = `<!DOCTYPE html>
     <section>
       <h2 class="text-2xl font-semibold border-b border-gray-600 pb-2 mb-4">Integration Notes</h2>
       <ul class="list-disc list-inside space-y-1">
-        <li>Top-level keys represent content sections like <code>"offers"</code> or <code>"hero"</code>.</li>
+        <li>Top-level keys represent content sections like <code>"offers"</code> or <code>"hero"</code> which is the folder name selected when upload.</li>
         <li>Each section contains an array of image metadata objects following the schema.</li>
         <li>Use this endpoint to load categorized content for rendering grouped UI elements.</li>
         <li>📦 On initial page load, fetch the data from this endpoint and store it in <code>localStorage</code>. Use that cached data across pages to avoid repeated API calls.</li>
