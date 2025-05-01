@@ -68,13 +68,21 @@ router.delete('/delete',auth, async (req, res) => {
 
 router.post('/all', auth, async (req, res) => {
   const data = await Image.aggregate([
-    { $group: { _id: '$folderName', images: { $push: '$$ROOT' } } },
+    { $sort: { createdAt: -1 } },
+    { $group: { _id: '$folderName', doc: { $first: '$$ROOT' } } },
   ]);
   const result = {};
   data.forEach((d) => {
-    result[d._id] = d.images;
+    result[d._id] = {
+      imgData: d.doc.img,
+      name: d.doc.name,
+      title: d.doc.title,
+      content: d.doc.content,
+      description: d.doc.description,
+    };
   });
   res.json(result);
 });
+
 
 module.exports = router;
