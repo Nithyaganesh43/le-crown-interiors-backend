@@ -50,81 +50,82 @@ module.exports = `<!DOCTYPE html>
       <pre class="text-sm rounded-lg">
 
 {
-    "offers": [
-        {
-            "img": {
-                "public_id": "lecrowninteriors/hsrtfdyvbtp6lvkptsux",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063750/lecrowninteriors/hsrtfdyvbtp6lvkptsux.avif",
-                "dimentions": {
-                    "width": 369,
-                    "height": 553
-                }
-            },
-            "name": "z",
-            "title": "z",
-            "content": "z",
-            "description": "z"
-        },
-        {
-            "img": {
-                "public_id": "lecrowninteriors/zelf1fjtfx9greltub3y",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063707/lecrowninteriors/zelf1fjtfx9greltub3y.avif",
-                "dimentions": {
-                    "width": 930,
-                    "height": 1316
-                }
-            },
-            "name": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w",
-            "title": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w",
-            "content": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w",
-            "description": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w"
-        },
-        {
-            "img": {
-                "public_id": "lecrowninteriors/x2dwiec2g48ugg0sdmmm",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746041229/lecrowninteriors/x2dwiec2g48ugg0sdmmm.avif",
-                "dimentions": {
-                    "width": 4480,
-                    "height": 2520
-                }
-            },
-            "name": "markethealers",
-            "title": "markethealers",
-            "content": "markethealers",
-            "description": "markethealers"
+  "offers": [
+    {
+      "img": {
+        "public_id": "lecrowninteriors/hsrtfdyvbtp6lvkptsux",
+        "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063750/lecrowninteriors/hsrtfdyvbtp6lvkptsux.avif",
+        "dimentions": {
+          "width": 369,
+          "height": 553
         }
-    ],
-    "hero": [
-        {
-            "img": {
-                "public_id": "lecrowninteriors/jfqzmfj9xkb2wuoke3zy",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062516/lecrowninteriors/jfqzmfj9xkb2wuoke3zy.avif",
-                "dimentions": {
-                    "width": 1799,
-                    "height": 1200
-                }
-            },
-            "name": "Nithya Ganesh",
-            "title": "Nithya Ganesh",
-            "content": "Nithya Ganesh",
-            "description": "Nithya Ganesh"
-        },
-        {
-            "img": {
-                "public_id": "lecrowninteriors/iu5nczfvfhecjqytzmhn",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062475/lecrowninteriors/iu5nczfvfhecjqytzmhn.avif",
-                "dimentions": {
-                    "width": 1920,
-                    "height": 1102
-                }
-            },
-            "name": "Nithya Ganesh",
-            "title": "Nithya Ganesh",
-            "content": "Nithya Ganesh",
-            "description": "Nithya Ganesh"
+      },
+      "name": "modern-living-room",
+      "title": "Elegant & Functional Living Spaces",
+      "content": "Transform your living room into a contemporary haven with sleek furniture, layered lighting, and earthy textures.",
+      "description": "Our modern living room designs blend comfort with luxury, utilizing open layouts, neutral tones, and handpicked decor accents to elevate your space."
+    },
+    {
+      "img": {
+        "public_id": "lecrowninteriors/zelf1fjtfx9greltub3y",
+        "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063707/lecrowninteriors/zelf1fjtfx9greltub3y.avif",
+        "dimentions": {
+          "width": 930,
+          "height": 1316
         }
-    ]
+      },
+      "name": "luxury-bedroom",
+      "title": "Serene Bedroom Interiors",
+      "content": "Create a peaceful retreat with custom-designed wardrobes, warm lighting, and plush textures.",
+      "description": "Designed for comfort and style, our luxury bedrooms feature soft color palettes, smart storage, and inviting ambiance to ensure restful nights."
+    },
+    {
+      "img": {
+        "public_id": "lecrowninteriors/x2dwiec2g48ugg0sdmmm",
+        "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746041229/lecrowninteriors/x2dwiec2g48ugg0sdmmm.avif",
+        "dimentions": {
+          "width": 4480,
+          "height": 2520
+        }
+      },
+      "name": "open-concept-kitchen",
+      "title": "Contemporary Kitchen Designs",
+      "content": "Maximize space and efficiency with open shelving, clean lines, and modern finishes.",
+      "description": "Our kitchen interiors are tailored for both form and function, using minimalist aesthetics and durable materials to support your culinary lifestyle."
+    }
+  ],
+  "hero": [
+    {
+      "img": {
+        "public_id": "lecrowninteriors/jfqzmfj9xkb2wuoke3zy",
+        "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062516/lecrowninteriors/jfqzmfj9xkb2wuoke3zy.avif",
+        "dimentions": {
+          "width": 1799,
+          "height": 1200
+        }
+      },
+      "name": "nithya-ganesh-portrait-1",
+      "title": "Creative Director",
+      "content": "With a passion for timeless design and innovation, Nithya leads our creative vision with elegance and precision.",
+      "description": "Nithya Ganesh, our lead designer, brings over a decade of experience crafting bespoke interiors that balance beauty with functionality."
+    },
+    {
+      "img": {
+        "public_id": "lecrowninteriors/iu5nczfvfhecjqytzmhn",
+        "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062475/lecrowninteriors/iu5nczfvfhecjqytzmhn.avif",
+        "dimentions": {
+          "width": 1920,
+          "height": 1102
+        }
+      },
+      "name": "nithya-ganesh-portrait-2",
+      "title": "Founder & Visionary",
+      "content": "Driven by excellence and innovation, Nithya transforms everyday spaces into works of art.",
+      "description": "As the founder of LeCrown Interiors, Nithya is committed to delivering personalized design solutions that reflect each client's unique style and story."
+    }
+  ]
 }
+
 
 
       </pre>
