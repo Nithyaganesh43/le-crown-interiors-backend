@@ -55,7 +55,7 @@ module.exports = `<!DOCTYPE html>
       "img": {
         "public_id": "lecrowninteriors/hsrtfdyvbtp6lvkptsux",
         "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063750/lecrowninteriors/hsrtfdyvbtp6lvkptsux.avif",
-        "dimentions": {
+        "dimensions": {
           "width": 369,
           "height": 553
         }
@@ -69,7 +69,7 @@ module.exports = `<!DOCTYPE html>
       "img": {
         "public_id": "lecrowninteriors/zelf1fjtfx9greltub3y",
         "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063707/lecrowninteriors/zelf1fjtfx9greltub3y.avif",
-        "dimentions": {
+        "dimensions": {
           "width": 930,
           "height": 1316
         }
@@ -83,7 +83,7 @@ module.exports = `<!DOCTYPE html>
       "img": {
         "public_id": "lecrowninteriors/x2dwiec2g48ugg0sdmmm",
         "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746041229/lecrowninteriors/x2dwiec2g48ugg0sdmmm.avif",
-        "dimentions": {
+        "dimensions": {
           "width": 4480,
           "height": 2520
         }
@@ -99,7 +99,7 @@ module.exports = `<!DOCTYPE html>
       "img": {
         "public_id": "lecrowninteriors/jfqzmfj9xkb2wuoke3zy",
         "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062516/lecrowninteriors/jfqzmfj9xkb2wuoke3zy.avif",
-        "dimentions": {
+        "dimensions": {
           "width": 1799,
           "height": 1200
         }
@@ -113,7 +113,7 @@ module.exports = `<!DOCTYPE html>
       "img": {
         "public_id": "lecrowninteriors/iu5nczfvfhecjqytzmhn",
         "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062475/lecrowninteriors/iu5nczfvfhecjqytzmhn.avif",
-        "dimentions": {
+        "dimensions": {
           "width": 1920,
           "height": 1102
         }
@@ -138,7 +138,7 @@ module.exports = `<!DOCTYPE html>
   "img": {
     "public_id": "string",               // Cloudinary public ID
     "url": "string",                     // Full Cloudinary URL (AVIF)
-    "dimentions": {
+    "dimensions": {
       "width": number,                  // Pixel width
       "height": number                  // Pixel height
     }

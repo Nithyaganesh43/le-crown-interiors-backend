@@ -6,7 +6,7 @@ const imageSchema = new mongoose.Schema(
     img: {
       public_id: { type: String },
       url: { type: String },
-      dimentions: {
+      dimensions: {
         width: { type: Number },
         height: { type: Number },
       },

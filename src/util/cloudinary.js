@@ -19,7 +19,7 @@ const uploadImg = async (path) => {
   return {
     public_id: res.public_id,
     url: res.url,
-    dimentions: {
+    dimensions: {
       width: res.width,
       height: res.height,
     },
