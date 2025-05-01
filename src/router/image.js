@@ -5,12 +5,11 @@ const fs = require('fs');
 const path = require('path');
 const { uploadImg, deleteImg } = require('../util/cloudinary')
 const Image = require('../model/image');
-
+let allData;
 const upload = multer({ storage: multer.memoryStorage() });
 
 const auth = (req, res, next) => {
-  next();
-  
+  next(); 
 };
 
 router.post('/upload',auth, upload.single('img'), async (req, res) => {
@@ -31,6 +30,7 @@ router.post('/upload',auth, upload.single('img'), async (req, res) => {
       description,
     });
     await image.save();
+    await updateAllData();
     res.json(image);
   } catch (e) {
     res.status(500).send(`Upload failed: ${e}`);
@@ -40,15 +40,20 @@ router.post('/upload',auth, upload.single('img'), async (req, res) => {
 router.delete('/delete',auth, async (req, res) => {
   try {
     const public_id = req.body.public_id;
+
     if (!public_id)
       return res
         .status(400)
         .json({ status: false, message: 'public_id is required' });
+
+
     const del = await Image.deleteOne({ 'img.public_id': public_id });
     if (del.deletedCount === 0)
       return res
         .status(404)
         .json({ status: false, message: 'Image not found' });
+
+    await updateAllData();   
     const cloud = await deleteImg(public_id);
     if (cloud.result !== 'ok')
       return res
@@ -66,23 +71,25 @@ router.delete('/delete',auth, async (req, res) => {
   }
 });
 
-router.post('/all', auth, async (req, res) => {
-  const data = await Image.aggregate([
-    { $sort: { createdAt: -1 } },
-    { $group: { _id: '$folderName', doc: { $first: '$$ROOT' } } },
-  ]);
-  const result = {};
-  data.forEach((d) => {
-    result[d._id] = {
-      imgData: d.doc.img,
-      name: d.doc.name,
-      title: d.doc.title,
-      content: d.doc.content,
-      description: d.doc.description,
-    };
-  });
-  res.json(result);
+router.post('/all', auth, async (req, res) => { 
+  res.json(allData);
 });
 
-
+async function updateAllData(params) {
+    const data = await Image.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $group: { _id: '$folderName', doc: { $first: '$$ROOT' } } },
+    ]);
+    const result = {};
+    data.forEach((d) => {
+      result[d._id] = {
+        imgData: d.doc.img,
+        name: d.doc.name,
+        title: d.doc.title,
+        content: d.doc.content,
+        description: d.doc.description,
+      };
+    });
+    allData=result;
+}
 module.exports = router;
