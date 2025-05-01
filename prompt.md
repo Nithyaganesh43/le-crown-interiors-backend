@@ -8,15 +8,11 @@ body
     "PASSWORD": "pasword entered initialy"
 }
 
-get all data 
+to get all data 
+initialy on loading the website get this data and store it in localstorage do not fetch again and again for each page use it form localstorage 
 POST https://le-crown-interiors-backend.onrender.com/image/all
-
-body 
-{
-    "PASSWORD": "pasword entered initialy"
-}
-setHeader('Content-Type', 'application/json');
 response 
+
 {
     "offers": [
         {

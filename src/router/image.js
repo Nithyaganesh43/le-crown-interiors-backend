@@ -5,9 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const { uploadImg, deleteImg } = require('../util/cloudinary')
 const Image = require('../model/image');
-let allData;
 const upload = multer({ storage: multer.memoryStorage() });
-
+const validator = require('../util/validation');
+let allData;
 const auth = (req, res, next) => {
   if (req.body?.PASSWORD === process.env.PASSWORD)return next(); 
   else{
@@ -16,6 +16,9 @@ res.status(400).send("Access Denied");
 };
 
 router.post('/upload',auth, upload.single('img'), async (req, res) => {
+  const errors = validator.uploadValidation(req);
+  if (errors.length) return res.status(400).json({ status: false, errors });
+
   try {
     const { name, title, content, description, folderName } = req.body;
     const dir = path.join(__dirname, '../tmp');
@@ -41,6 +44,9 @@ router.post('/upload',auth, upload.single('img'), async (req, res) => {
 });
 
 router.delete('/delete',auth, async (req, res) => {
+  const errors = validator.deleteValidation(req);
+  if (errors.length) return res.status(400).json({ status: false, errors });
+
   try {
     const public_id = req.body.public_id;
 
@@ -74,7 +80,7 @@ router.delete('/delete',auth, async (req, res) => {
   }
 });
 
-router.post('/all', auth, async (req, res) => { 
+router.post('/all', async (req, res) => { 
   res.json(allData);
 });
 
