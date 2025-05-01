@@ -75,7 +75,7 @@ router.post('/all', auth, async (req, res) => {
   res.json(allData);
 });
 
-async function updateAllData(params) {
+async function updateAllData( ) {
     const data = await Image.aggregate([
       { $sort: { createdAt: -1 } },
       { $group: { _id: '$folderName', doc: { $first: '$$ROOT' } } },
@@ -92,4 +92,9 @@ async function updateAllData(params) {
     });
     allData=result;
 }
+
+(async ()=>{
+   await updateAllData(); 
+})();
+
 module.exports = router;
