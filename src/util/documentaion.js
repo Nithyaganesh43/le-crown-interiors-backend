@@ -31,7 +31,7 @@ module.exports = `<!DOCTYPE html>
 </head>
 <body class="p-10">
   <div class="max-w-5xl mx-auto">
-    <h1 class="text-4xl font-bold mb-6 text-center">/image/all Route Documentation</h1>
+    <h1 class="text-4xl font-bold mb-6 text-center">GET /image/all – Get All Images Grouped by Folder</h1>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold border-b border-gray-600 pb-2 mb-4">Endpoint Details</h2>
@@ -39,7 +39,7 @@ module.exports = `<!DOCTYPE html>
         <p><strong>Method:</strong> <span class="text-green-400">POST</span></p>
         <p><strong>URL:</strong> <code>https://le-crown-interiors-backend.onrender.com/image/all</code></p>
         <p><strong>Authentication:</strong> <span class="text-red-400">None Required</span></p>
-        <p><strong>Request Body:</strong> <span class="text-gray-400">Must be empty</span></p>
+        <p><strong>Request Body:</strong> <span class="text-gray-400">Must be empty {} (empty object) or null</span></p>
         <p><strong>Description:</strong> Returns all image data grouped by their folder name such as <code>"offers"</code>, <code>"hero"</code>, etc.</p>
       </div>
     </section>
