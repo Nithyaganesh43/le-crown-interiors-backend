@@ -9,7 +9,10 @@ let allData;
 const upload = multer({ storage: multer.memoryStorage() });
 
 const auth = (req, res, next) => {
-  next(); 
+  if (req.body?.PASSWORD === process.env.PASSWORD)return next(); 
+  else{
+res.status(400).send("Access Denied");
+  }
 };
 
 router.post('/upload',auth, upload.single('img'), async (req, res) => {

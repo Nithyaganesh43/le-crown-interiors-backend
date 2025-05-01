@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 const connectToDb = require('./src/config/mongoos');
 const imageRoute = require('./src/router/image');
 
