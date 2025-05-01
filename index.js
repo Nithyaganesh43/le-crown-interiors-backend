@@ -5,10 +5,7 @@ const imageRoute = require('./src/router/image');
 
 const app = express();
 app.use(express.json());
-const allowedOrigins = [
-  'https://v0-image-management-system.vercel.app',
-  'https://lecrowninteriosadmin.vercel.app',
-];
+const allowedOrigins = ['https://admin.le-crowninteriors.com'];
 app.use(cors({ origin: allowedOrigins }));
 
 app.use('/image', imageRoute);
