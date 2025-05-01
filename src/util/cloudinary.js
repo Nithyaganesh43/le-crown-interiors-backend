@@ -39,28 +39,4 @@ const deleteImg = async (id) => {
 
 module.exports = {uploadImg,deleteImg};
 
-
-// const getImagesFromFolder = async (folderName) => {
-//   const result = await cloudinary.api.resources({
-//     prefix: folderName,
-//     type: 'upload',
-//     max_results: 500,
-//   });
-//   return result.resources;
-// };
-
-// getImagesFromFolder('lecrowninteriors/').then((images) => console.log(images));
-
-// deleteImg('lecrowninteriors/dqiglzhnj1eu6igtw9gs');
-
-
-
-// const getImageInfoById = async (public_id) => {
-//   try {
-//     const result = await cloudinary.api.resource(public_id);
-//    console.log(result)
-//   } catch (error) {
-//     console.error('Error fetching image info:', error);
-//   }
-// };
-// getImageInfoById('lecrowninteriors/xgtopmnf4hqmavjgssao') 
+ 
