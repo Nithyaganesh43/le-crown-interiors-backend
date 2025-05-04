@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const serverInit = express.Router();
-serverInit.use(express.json());
 const cors = require('cors');
 const allowedOrigins = ['https://admin.le-crowninteriors.com'];
 serverInit.use(cors({ origin: allowedOrigins }));

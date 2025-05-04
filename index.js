@@ -4,6 +4,7 @@ const imageRoute = require('./src/router/image');
 const doc = require('./src/util/documentaion');
 const serverInit = require('./src/router/server');
 const app = express();
+app.use(express.json());
 
 app.use(serverInit);
 app.use('/image', imageRoute);
