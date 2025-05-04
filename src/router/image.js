@@ -3,24 +3,20 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { uploadImg, deleteImg } = require('../util/cloudinary')
+const { uploadImg, deleteImg } = require('../util/cloudinary');
 const Image = require('../model/image');
 const upload = multer({ storage: multer.memoryStorage() });
 const validator = require('../util/validation');
 let allData;
+
 const auth = (req, res, next) => {
-  console.log(req.body.PASSWORD);
-  console.log(process.env.PASSWORD);
   if (req.body?.PASSWORD === process.env.PASSWORD) return next();
-  else {
-    res.status(400).send('Access Denied');
-  }
+  res.status(400).send('Access Denied');
 };
 
-router.post('/upload',auth, upload.single('img'), async (req, res) => {
+router.post('/upload', upload.single('img'), auth, async (req, res) => {
   const errors = validator.uploadValidation(req);
   if (errors.length) return res.status(400).json({ status: false, errors });
-
   try {
     const { name, title, content, description, folderName } = req.body;
     const dir = path.join(__dirname, '../tmp');
@@ -45,26 +41,21 @@ router.post('/upload',auth, upload.single('img'), async (req, res) => {
   }
 });
 
-router.delete('/delete',auth, async (req, res) => {
+router.delete('/delete', auth, async (req, res) => {
   const errors = validator.deleteValidation(req);
   if (errors.length) return res.status(400).json({ status: false, errors });
-
   try {
     const public_id = req.body.public_id;
-
     if (!public_id)
       return res
         .status(400)
         .json({ status: false, message: 'public_id is required' });
-
-
     const del = await Image.deleteOne({ 'img.public_id': public_id });
     if (del.deletedCount === 0)
       return res
         .status(404)
         .json({ status: false, message: 'Image not found' });
-
-    await updateAllData();   
+    await updateAllData();
     const cloud = await deleteImg(public_id);
     if (cloud.result !== 'ok')
       return res
@@ -82,7 +73,7 @@ router.delete('/delete',auth, async (req, res) => {
   }
 });
 
-router.post('/all', async (req, res) => { 
+router.post('/all', async (req, res) => {
   res.json(allData);
 });
 
@@ -104,8 +95,8 @@ async function updateAllData() {
   allData = result;
 }
 
-(async ()=>{
-   await updateAllData(); 
+(async () => {
+  await updateAllData();
 })();
 
 module.exports = router;
