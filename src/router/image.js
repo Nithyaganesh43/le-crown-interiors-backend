@@ -9,9 +9,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 const validator = require('../util/validation');
 let allData;
 const auth = (req, res, next) => {
-  if (req.body?.PASSWORD === process.env.PASSWORD)return next(); 
-  else{
-res.status(400).send("Access Denied");
+  console.log(req.body.PASSWORD);
+  console.log(process.env.PASSWORD);
+  if (req.body?.PASSWORD === process.env.PASSWORD) return next();
+  else {
+    res.status(400).send('Access Denied');
   }
 };
 
