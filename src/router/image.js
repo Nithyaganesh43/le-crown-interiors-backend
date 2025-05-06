@@ -77,35 +77,31 @@ router.delete('/delete', auth, async (req, res) => {
   }
 });
 
-
 router.post('/update', auth, async (req, res) => {
   const errors = validator.updateValidation(req);
-  
   if (errors.length) return res.status(400).json({ status: false, errors });
-
   try {
-    const { name, title, content, description, folderName, public_id } = req.body;
-     
+    const { name, title, content, description, folderName, public_id } =
+      req.body;
     const info = await Image.updateOne(
       { 'img.public_id': public_id },
       { folderName, name, title, content, description }
     );
-
-    if (info.result !== 'ok')
+    if (!info.acknowledged || info.modifiedCount === 0)
       return res.status(500).json({
         status: false,
         message: 'Updation failed',
         error: info,
       });
-    await updateAllData(); 
-    
+    await updateAllData();
     res.json({ status: true, message: 'Image updated' });
   } catch (e) {
     res
       .status(500)
-      .json({ status: false, message: `Delete failed: ${e.message}` });
+      .json({ status: false, message: `Update failed: ${e.message}` });
   }
 });
+
 
 async function updateAllData() {
   const data = await Image.aggregate([
