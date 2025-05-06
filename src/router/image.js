@@ -9,6 +9,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 const validator = require('../util/validation');
 let allData;
 
+router.get('/all', async (req, res) => {
+  res.json(allData);
+});
+
 const auth = (req, res, next) => {
   if (req.body?.PASSWORD === process.env.PASSWORD) return next();
   res.status(400).send('Access Denied');
@@ -71,10 +75,6 @@ router.delete('/delete', auth, async (req, res) => {
       .status(500)
       .json({ status: false, message: `Delete failed: ${e.message}` });
   }
-});
-
-router.post('/all', async (req, res) => {
-  res.json(allData);
 });
 
 async function updateAllData() {

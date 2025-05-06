@@ -36,7 +36,7 @@ module.exports = `<!DOCTYPE html>
     <section class="mb-10">
       <h2 class="text-2xl font-semibold border-b border-gray-600 pb-2 mb-4">Endpoint Details</h2>
       <div class="space-y-2">
-        <p><strong>Method:</strong> <span class="text-green-400">POST</span></p>
+        <p><strong>Method:</strong> <span class="text-green-400">GET</span></p>
         <p><strong>URL:</strong> <code>https://le-crown-interiors-backend.onrender.com/image/all</code></p>
         <p><strong>Authentication:</strong> <span class="text-red-400">None Required</span></p>
         <p><strong>Request Body:</strong> <span class="text-gray-400">Must be empty {} (empty object) or null</span></p>
