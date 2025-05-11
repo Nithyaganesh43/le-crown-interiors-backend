@@ -4,7 +4,10 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const serverInit = express.Router();
-const allowedOrigins = ['https://admin.le-crowninteriors.com'];
+const allowedOrigins = [
+  'https://admin.le-crowninteriors.com',
+  'http://127.0.0.1:5500',
+];
 
 serverInit.use(cookieParser());
 serverInit.use(express.json());

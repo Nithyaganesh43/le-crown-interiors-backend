@@ -9,22 +9,16 @@
 </head>
 
 <body>
+<input type="number" id="phoneNumber">
+<button onclick="sendotp()">sendotp</button>
+<input type="number" id="otp">
+<button onclick="verify()">submit otp</button>
+<p id="message"></p>
     <script>
         async function getBrowserData() {
             const data = {
                 userAgent: navigator.userAgent,
-                platform: navigator.platform,
                 language: navigator.language,
-                screenWidth: screen.width,
-                screenHeight: screen.height,
-                colorDepth: screen.colorDepth,
-                deviceMemory: navigator.deviceMemory,
-                hardwareConcurrency: navigator.hardwareConcurrency,
-                timezoneOffset: (new Date()).getTimezoneOffset(),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                localStorage: !!window.localStorage,
-                sessionStorage: !!window.sessionStorage,
-                cookieEnabled: navigator.cookieEnabled
             };
             return data;
         }
@@ -35,11 +29,11 @@
             return res.visitorId;
         }
 
-        async function sendToBackend() {
+        async function sendotp() {
             const userBrowserData = await getBrowserData();
             const fingerprint = await getClientId();
 
-            const response = await fetch('http://localhost:3000/compare-browser-data', {
+            const response = await fetch('/otp/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -53,8 +47,24 @@
             const data = await response.json();
             console.log(data);
         }
+        async function verify() {
+                const userBrowserData = await getBrowserData();
+                const fingerprint = await getClientId();
 
-        sendToBackend();
+                const response = await fetch('/otp/verifyotp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userBrowserData,
+                        fingerprint
+                    })
+                });
+
+                const data = await response.json();
+                console.log(data);
+            }
     </script>
 </body>
 
