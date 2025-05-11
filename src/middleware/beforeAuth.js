@@ -9,16 +9,29 @@ async function processOtpAttempt(req, res, next) {
       .status(400)
       .json({ status: false, message: 'Invalid phone number' });
 
+  const origin = req.get('Origin') || '';
+  const referer = req.get('Referer') || '';
+  const ua = req.get('User-Agent') || '';
+  const lang = req.get('Accept-Language')?.split(',')[0] || '';
+
+  // BLOCK Postman/non-browser clients by missing headers or mismatches
+  if (
+    !origin ||
+    !referer ||
+    !ua.includes('Mozilla') ||
+    !userBrowserData ||
+    ua !== userBrowserData.userAgent ||
+    lang !== userBrowserData.language
+  )
+    return res
+      .status(403)
+      .json({ status: false, message: 'Blocked: invalid client' });
+
   const verified = await VerifiedUser.findOne({ phoneNumber: n }).select('_id');
   if (verified)
     return res
       .status(200)
       .json({ status: true, message: 'Phone number already verified' });
-
-  const ua = req.get('User-Agent');
-  const lang = req.get('Accept-Language')?.split(',')[0] || '';
-  const isMatch =
-    ua === userBrowserData?.userAgent && lang === userBrowserData?.language;
 
   let entry = await AuthAttempt.findOne({ deviceId: fingerprint }).select(
     'isBlocked blockedAt failedAttempts lastAttemptAt'
@@ -44,14 +57,13 @@ async function processOtpAttempt(req, res, next) {
     entry.blockedAt = null;
   }
 
-  if (entry.isBlocked) {
+  if (entry.isBlocked)
     return res
       .status(403)
       .json({
         status: false,
         message: 'Too many failed attempts. Try again in 24h',
       });
-  }
 
   if (entry.failedAttempts >= 3) {
     await AuthAttempt.updateOne(
@@ -66,19 +78,10 @@ async function processOtpAttempt(req, res, next) {
       });
   }
 
-  if (entry.lastAttemptAt && now - entry.lastAttemptAt.getTime() < 60000) {
+  if (entry.lastAttemptAt && now - entry.lastAttemptAt.getTime() < 60000)
     return res
       .status(429)
       .json({ status: false, message: 'Wait before trying again' });
-  }
-
-  if (isMatch) {
-    await AuthAttempt.updateOne(
-      { deviceId: fingerprint },
-      { lastAttemptAt: new Date() }
-    );
-    return next();
-  }
 
   await AuthAttempt.updateOne(
     { deviceId: fingerprint },
