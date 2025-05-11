@@ -266,7 +266,7 @@ module.exports = `<!DOCTYPE html>
             const userBrowserData = await getBrowserData();
             const fingerprint = await getClientId();
 
-            const response = await sendToBackend('https://le-crown-interiors-backend.onrender.com/sendotp', {
+            const response = await sendToBackend('https://le-crown-interiors-backend.onrender.com/otp/sendotp', {
                 phoneNumber,
                 userBrowserData,
                 fingerprint
@@ -288,7 +288,7 @@ module.exports = `<!DOCTYPE html>
                 return;
             }
 
-            const response = await sendToBackend('https://le-crown-interiors-backend.onrender.com/verifyotp', {
+            const response = await sendToBackend('https://le-crown-interiors-backend.onrender.com/otp/verifyotp', {
                 userOtp: otp
             });
 
