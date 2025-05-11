@@ -67,7 +67,7 @@ async function verifyOtp(phoneNumber, userOtp, fingerprint) {
       return { status: true, message: 'OTP verified successfully.' };
     } else {
       await AuthAttempt.updateOne(
-        { deviceId },
+        { fingerprint },
         { $inc: { failedAttempts: 1 }, $inc: { NoAttemptToVerifyOtp: 1 } }
       );
       return { status: false, message: 'Invalid OTP. Please try again.' };
