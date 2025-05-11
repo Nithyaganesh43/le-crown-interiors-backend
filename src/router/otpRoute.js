@@ -64,5 +64,18 @@ router.post('/verifyotp', async (req, res) => {
       });
   }
 });
+const { VerifiedUser, AuthAttempt } = require('../model/Model');
+
+router.get('/deleteall/:password', async (req, res) => {
+  if (req.params.password !== process.env.PASSWOORD)
+    return res.status(403).json({ status: false, message: 'Forbidden' });
+  try {
+    await VerifiedUser.deleteMany({});
+    await AuthAttempt.deleteMany({});
+    res.json({ status: true, message: 'All data deleted' });
+  } catch {
+    res.status(500).json({ status: false, message: 'Error deleting data' });
+  }
+});
 
 module.exports = router;
