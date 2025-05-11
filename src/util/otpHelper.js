@@ -34,7 +34,7 @@ async function sendOtp(phoneNumber, deviceId) {
   } catch (e) {
     return {
       status: false,
-      message: e.response?.data?.Details || 'Failed to send OTP.',
+      message: e.message,
     };
   }
 }
@@ -72,7 +72,7 @@ async function verifyOtp(phoneNumber, userOtp, deviceId) {
   } catch (e) {
     return {
       status: false,
-      message: 'Verification failed due to a server error.',
+      message: e.message,
     };
   }
 }
