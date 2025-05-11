@@ -20,7 +20,7 @@ const ImageSchema = new mongoose.Schema(
 );
 const VerifiedUserSchema = new mongoose.Schema(
   {
-    deviceId: { type: String, unique: true, required: true },
+    deviceId: { type: String, required: true },
     phoneNumber: { type: String, unique: true, required: true, index: true },
   },
   { timestamps: true }
