@@ -5,13 +5,21 @@ module.exports = async function validator(req, res, next) {
   const b = req.body;
   const f = b.fingerprint;
   const now = Date.now();
-  if (b.userOtp && !/^\d{4}$/.test(b.userOtp))
-    return res.status(400).json({ status: false, message: 'Invalid OTP' });
-  if (b.phoneNumber && !/^\d{10}$/.test(b.phoneNumber))
+
+  const isVerifyOtp = !!b.userOtp;
+  const isSendOtp = !!b.phoneNumber;
+
+  // Basic format validations
+  if (isVerifyOtp && !/^\d{4}$/.test(b.userOtp))
     return res
       .status(400)
-      .json({ status: false, message: 'Invalid phone number' });
-  
+      .json({ status: false, message: 'Invalid OTP format' });
+
+  if (isSendOtp && !/^\d{10}$/.test(b.phoneNumber))
+    return res
+      .status(400)
+      .json({ status: false, message: 'Invalid phone number format' });
+
   const block = async (reason) => {
     await AuthAttempt.updateOne(
       { deviceId: f },
@@ -30,6 +38,7 @@ module.exports = async function validator(req, res, next) {
   };
 
   try {
+    // Validate browser headers & fingerprint
     const v = b.userBrowserData;
     const origin = xss(req.get('Origin') || '');
     const referer = xss(req.get('Referer') || '');
@@ -47,25 +56,24 @@ module.exports = async function validator(req, res, next) {
       !v.language
     ) {
       return await block(
-        'Invalid or missing browser headers or browser fingerprint data.'
+        'Missing or invalid browser headers or fingerprint data.'
       );
     }
 
     if (ua !== v.userAgent) {
       return await block(
-        'User-Agent mismatch between request header and body.'
+        'User-Agent mismatch between headers and client data.'
       );
     }
 
     const clientLang = v.language.split('-')[0];
     if (lang !== clientLang) {
-      return await block(
-        'Language mismatch between Accept-Language header and client data.'
-      );
+      return await block('Language mismatch between headers and client data.');
     }
 
     const attempt = await AuthAttempt.findOne({ deviceId: f });
 
+    // Check 24-hour block
     if (
       attempt?.isBlocked &&
       attempt.blockedAt &&
@@ -79,23 +87,28 @@ module.exports = async function validator(req, res, next) {
       });
     }
 
-    if (
-      attempt?.lastAttemptAt &&
-      now - attempt.lastAttemptAt.getTime() < 60000 
-    ) {
-      return await block(
-        'Too many requests in a short time. Please wait 60 seconds before retrying.'
+    // Apply rate limiting ONLY on sending OTP
+    if (isSendOtp) {
+      if (
+        attempt?.lastAttemptAt &&
+        now - attempt.lastAttemptAt.getTime() < 60000
+      ) {
+        return await block(
+          'Too many OTP requests. Please wait 60 seconds before retrying.'
+        );
+      }
+
+      // Update last attempt time only for sending
+      await AuthAttempt.updateOne(
+        { deviceId: f },
+        { $set: { lastAttemptAt: new Date() } },
+        { upsert: true }
       );
     }
 
-    await AuthAttempt.updateOne(
-      { deviceId: f },
-      { $set: { lastAttemptAt: new Date() } },
-      { upsert: true }
-    );
-
     next();
-  } catch {
+  } catch (err) {
+    console.error('Firewall error:', err);
     return res
       .status(500)
       .json({ status: false, message: 'Unexpected server error in firewall.' });
