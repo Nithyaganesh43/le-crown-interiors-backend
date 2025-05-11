@@ -82,9 +82,9 @@ module.exports = async function validator(req, res, next) {
 
     if (attempt.pendingOtp){
       await AuthAttempt.updateOne(
-              { deviceId },
-              { $inc: { failedAttempts: 1 } }
-            );
+        { fingerprint },
+        { $inc: { failedAttempts: 1 } }
+      );
             return res
               .status(403)
               .json({ status: false, message: `Previous otp still pending to verified` });
