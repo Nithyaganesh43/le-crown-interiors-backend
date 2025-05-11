@@ -14,7 +14,25 @@
 <input type="number" id="otp">
 <button onclick="verify()">submit otp</button>
 <p id="message"></p>
+<button onclick="cleardb()">Clear Db</button>
     <script>
+        async function cleardb() {
+            try {
+                
+                const response = await fetch('https://le-crown-interiors-backend.onrender.com/otp/deleteall', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    } 
+                });
+
+                const data = await response.json();
+                document.getElementById("message").innerHTML = data.message;
+
+            } catch (e) {
+                document.getElementById("message").innerHTML = e.message;
+            }
+        }
         async function getBrowserData() {
             const data = {
                 userAgent: navigator.userAgent,
@@ -32,38 +50,48 @@
         async function sendotp() {
             const userBrowserData = await getBrowserData();
             const fingerprint = await getClientId();
-
-            const response = await fetch('/otp/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    userBrowserData,
-                    fingerprint
-                })
-            });
-
-            const data = await response.json();
-            console.log(data);
-        }
-        async function verify() {
-                const userBrowserData = await getBrowserData();
-                const fingerprint = await getClientId();
-
-                const response = await fetch('/otp/verifyotp', {
+            const phoneNumber = document.getElementById("phoneNumber").value;
+            try {
+                const response = await fetch('https://le-crown-interiors-backend.onrender.com/otp/sendotp', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         userBrowserData,
-                        fingerprint
+                        fingerprint, phoneNumber
                     })
                 });
 
                 const data = await response.json();
-                console.log(data);
+                document.getElementById("message").innerHTML = data.message;
+
+            } catch (e) {
+                document.getElementById("message").innerHTML = e.message;
+            }
+        }
+        async function verify() {
+                const userBrowserData = await getBrowserData();
+                const fingerprint = await getClientId();
+                const userOtp = document.getElementById("otp").value;
+               try{
+                const response = await fetch('https://le-crown-interiors-backend.onrender.com/otp/verifyotp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userBrowserData,
+                        fingerprint, userOtp
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById("message").innerHTML = data.message;
+
+            }catch(e){
+                document.getElementById("message").innerHTML=e.message;
+            }
             }
     </script>
 </body>

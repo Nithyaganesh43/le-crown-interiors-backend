@@ -5,7 +5,13 @@ module.exports = async function validator(req, res, next) {
   const b = req.body;
   const f = b.fingerprint;
   const now = Date.now();
-
+  if (b.userOtp && !/^\d{6}$/.test(b.userOtp))
+    return res.status(400).json({ status: false, message: 'Invalid OTP' });
+  if (b.phoneNumber && !/^\d{10}$/.test(b.phoneNumber))
+    return res
+      .status(400)
+      .json({ status: false, message: 'Invalid phone number' });
+  
   const block = async (reason) => {
     await AuthAttempt.updateOne(
       { deviceId: f },
@@ -75,7 +81,7 @@ module.exports = async function validator(req, res, next) {
 
     if (
       attempt?.lastAttemptAt &&
-      now - attempt.lastAttemptAt.getTime() < 60000
+      now - attempt.lastAttemptAt.getTime() < 60000 
     ) {
       return await block(
         'Too many requests in a short time. Please wait 60 seconds before retrying.'
