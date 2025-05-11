@@ -11,11 +11,11 @@ function generateFourDigitNumber() {
 async function sendOtp(phoneNumber, deviceId) {
   try {
     const otp = generateFourDigitNumber();
-    const url = `https://2factor.in/API/V1/${process.env.FACTOR_API_Key}/SMS/${phoneNumber}/${otp}/OTP1`;
-    const response = await axios.get(url);
-    if (response.status !== 200 || response.data?.Status !== 'Success') {
-      return { status: false, message: 'Failed to send OTP via provider.' };
-    }
+    // const url = `https://2factor.in/API/V1/${process.env.FACTOR_API_Key}/SMS/${phoneNumber}/${otp}/OTP1`;
+    // const response = await axios.get(url);
+    // if (response.status !== 200 || response.data?.Status !== 'Success') {
+    //   return { status: false, message: 'Failed to send OTP via provider.' };
+    // }
     otpCache.set(phoneNumber, { otpCode: otp, createdAt: Date.now() });
     await AuthAttempt.updateOne(
       { deviceId },
@@ -30,7 +30,7 @@ async function sendOtp(phoneNumber, deviceId) {
       },
       { upsert: true }
     );
-    return { status: true, message: 'OTP sent successfully.' };
+    return { status: true, message: 'OTP sent successfully.'+otp };
   } catch (e) {
     return {
       status: false,

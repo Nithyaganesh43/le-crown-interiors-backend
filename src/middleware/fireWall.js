@@ -74,7 +74,9 @@ module.exports = async function validator(req, res, next) {
       await newAttempt.save();
       next();
     }
-    if (attempt.failedAttempts > 2) return await block('More failed attempted to send otp');
+
+    if (attempt.failedAttempts > 2)
+      return await block('More failed attempted to send otp');
     if (attempt.NoAttemptToVerifyOtp > 5)
       return await block('More failed attempted to verify Otp');
 
