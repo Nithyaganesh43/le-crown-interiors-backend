@@ -32,9 +32,10 @@ const AuthAttemptSchema = new mongoose.Schema(
     phoneNumber: { type: String },
     failedAttempts: { type: Number, default: 0 },
     lastAttemptAt: { type: Date, default: Date.now },
+    reasonForBlocked: { type: String },
     isBlocked: { type: Boolean, default: false },
     blockedAt: { type: Date },
-  
+
     pendingOtp: { type: Boolean, default: false },
   },
   { timestamps: true }
