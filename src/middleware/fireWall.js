@@ -130,14 +130,17 @@ module.exports = async function validator(req, res, next) {
     if (attempt.pendingOtp) {
       console.log('Check Failed: OTP already pending');
       await AuthAttempt.updateOne(
-        { fingerprint },
+        { deviceId: fingerprint },
         { $inc: { failedAttempts: 1 } }
       );
       return res.status(403).json({
         status: false,
         message: 'Previous otp still pending to verified',
       });
-    } else console.log('Check Passed: No pending OTP');
+    } else console.log(
+      'Check Passed: No pending OTP and attempt.pendingOtp value is ' +
+        attempt.pendingOtp
+    );
 
     if (isSendOtp && now - attempt.lastAttemptToSendOtp.getTime() < 60000) {
       console.log('Check Failed: OTP request too soon');
