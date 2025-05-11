@@ -18,20 +18,28 @@ const ImageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+const VerifiedUserSchema = new mongoose.Schema(
+  {
+    deviceId: { type: String, unique: true, required: true },
+    phoneNumber: { type: String, unique: true, required: true, index: true },
+  },
+  { timestamps: true }
+);
 
-const VerifiedUserSchema=new mongoose.Schema({
-  phoneNumber:{type:String,unique:true,required:true,index:true}
-},{timestamps:true})  
+const AuthAttemptSchema = new mongoose.Schema(
+  {
+    deviceId: { type: String, unique: true, required: true },
+    phoneNumber: { type: String },
+    failedAttempts: { type: Number, default: 0 },
+    lastAttemptAt: { type: Date, default: Date.now },
+    isBlocked: { type: Boolean, default: false },
+    blockedAt: { type: Date },
+  
+    pendingOtp: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-const AuthAttemptSchema=new mongoose.Schema({
-  deviceId:{type:String,unique:true,required:true},
-  phoneNumber:{type:String},
-  failedAttempts:{type:Number,default:0},
-  lastAttemptAt:{type:Date,default:Date.now},
-  isBlocked:{type:Boolean,default:false},
-  blockedAt:{type:Date}
-},{timestamps:true})
- 
 module.exports = {
   VerifiedUser: mongoose.model('VerifiedUser', VerifiedUserSchema),
   AuthAttempt: mongoose.model('AuthAttempt', AuthAttemptSchema),

@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const fireWall = require('../middleware/beforeAuth');
+const fireWall = require('../middleware/fireWall');
 const { sendOtp, verifyOtp } = require('../util/otpHelper');
 const jwt = require('jsonwebtoken');
 
-router.post('/sendotp', fireWall, async (req, res) => {
+
+
+
+router.use(fireWall);
+
+router.post('/sendotp',  async (req, res) => {
   const { phoneNumber } = req.body;
   if (!phoneNumber) {
     return res
