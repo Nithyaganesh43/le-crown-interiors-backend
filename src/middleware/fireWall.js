@@ -127,7 +127,7 @@ console.log('fingerprint ' + fingerprint);
       );
     } else console.log('Check Passed: Failed verify attempts acceptable');
 
-    if (attempt.pendingOtp) {
+    if (isSendOtp && attempt.pendingOtp) {
       console.log('Check Failed: OTP already pending');
       await AuthAttempt.updateOne(
         { deviceId: fingerprint },
@@ -137,10 +137,11 @@ console.log('fingerprint ' + fingerprint);
         status: false,
         message: 'Previous otp still pending to verified',
       });
-    } else console.log(
-      'Check Passed: No pending OTP and attempt.pendingOtp value is ' +
-        attempt.pendingOtp
-    );
+    } else
+      console.log(
+        'Check Passed: No pending OTP and attempt.pendingOtp value is ' +
+          attempt.pendingOtp
+      );
 
     if (isSendOtp && now - attempt.lastAttemptToSendOtp.getTime() < 60000) {
       console.log('Check Failed: OTP request too soon');
