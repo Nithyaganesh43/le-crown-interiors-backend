@@ -26,8 +26,8 @@ router.post('/sendotp', fireWall, async (req, res) => {
       secure: true,  
       sameSite: 'None',  
     });
-
-    res.status(200).json(status);
+ 
+res.status(200).json(status);
   } else {
     res.status(400).json(status);
   }
@@ -44,7 +44,7 @@ router.post('/verifyotp', async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.PASSWORD);
     const phoneNumber = decoded.phoneNumber;
-
+console.log("verify :userOtp: "+userOtp +" userPhno " + phoneNumber);
     const status = await verifyOtp(phoneNumber, userOtp);
 
     if (status.status) {
