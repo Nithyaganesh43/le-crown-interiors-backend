@@ -164,143 +164,98 @@
 // </body>
 // </html>
 // `;
-
 module.exports = `<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Authentication</title>
-    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/intlTelInput.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/css/intlTelInput.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OTP Auth</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/intlTelInput.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/css/intlTelInput.min.css"/>
 </head>
-
 <body class="bg-gray-100 h-screen flex justify-center items-center">
+  <div class="bg-white p-8 rounded-xl shadow-xl w-96">
+    <h1 class="text-2xl font-semibold text-center mb-6">OTP Authentication</h1>
+    <form id="otpForm" class="space-y-4">
+      <div id="phoneSection">
+        <label class="text-sm font-medium text-gray-700">Phone Number</label>
+        <input type="tel" id="phoneNumber" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+        <button type="button" id="sendOtp" class="w-full mt-4 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">Send OTP</button>
+      </div>
+      <div id="otpSection" class="hidden">
+        <label class="text-sm font-medium text-gray-700">Enter OTP</label>
+        <input type="text" id="otp" maxlength="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+        <button type="button" id="verifyOtp" class="w-full mt-4 bg-green-500 text-white p-2 rounded-md hover:bg-green-600">Verify OTP</button>
+      </div>
+    </form>
+    <div id="message" class="text-center text-sm mt-4 text-gray-600"></div>
+  </div>
 
-    <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h1 class="text-2xl font-semibold mb-4 text-center">OTP Authentication</h1>
-        
-        <form id="otpForm" class="space-y-4">
-            <!-- Phone number input with country flags -->
-            <div>
-                <label for="phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                <input type="tel" id="phoneNumber" name="phoneNumber" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your phone number" required>
-            </div>
-            
-            <!-- Send OTP button -->
-            <div class="flex justify-center">
-                <button type="button" id="sendOtp" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">Send OTP</button>
-            </div>
-            
-            <!-- OTP input -->
-            <div id="otpSection" class="hidden">
-                <div>
-                    <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
-                    <input type="text" id="otp" name="otp" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter OTP" required>
-                </div>
+  <script>
+    const phoneInput = intlTelInput(document.querySelector("#phoneNumber"), {
+      preferredCountries: ["in", "us"],
+      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/utils.js",
+    });
 
-                <!-- Verify OTP button -->
-                <div class="flex justify-center">
-                    <button type="button" id="verifyOtp" class="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition">Verify OTP</button>
-                </div>
-            </div>
-        </form>
+    let fingerprint = "";
+    FingerprintJS.load().then(fp => fp.get()).then(res => fingerprint = res.visitorId);
 
-        <div id="message" class="mt-4 text-center text-sm"></div>
-    </div>
+    const getBrowserData = () => ({
+      userAgent: navigator.userAgent,
+      language: navigator.language
+    });
 
-    <script>
-        // Initialize international phone number input
-        const phoneInput = window.intlTelInput(document.querySelector("#phoneNumber"), {
-            preferredCountries: ['IN', 'US', 'GB'], // List countries to show first
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/utils.js" // For validation
-        });
+    const showMessage = (msg, color = 'text-gray-600') => {
+      const el = document.getElementById("message");
+      el.textContent = msg;
+      el.className = 'text-center text-sm mt-4 ${color}';
+    };
 
-        async function getBrowserData() {
-            const data = {
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                language: navigator.language,
-                screenWidth: screen.width,
-                screenHeight: screen.height,
-                colorDepth: screen.colorDepth,
-                deviceMemory: navigator.deviceMemory,
-                hardwareConcurrency: navigator.hardwareConcurrency,
-                timezoneOffset: (new Date()).getTimezoneOffset(),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                localStorage: !!window.localStorage,
-                sessionStorage: !!window.sessionStorage,
-                cookieEnabled: navigator.cookieEnabled
-            };
-            return data;
-        }
+    document.getElementById("sendOtp").onclick = async () => {
+      const phone = phoneInput.getNumber();
+      if (!phoneInput.isValidNumber()) return showMessage("Invalid phone number", "text-red-500");
 
-        async function getClientId() {
-            const fp = await FingerprintJS.load();
-            const res = await fp.get();
-            return res.visitorId;
-        }
+      const res = await fetch('/otp/sendotp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phoneNumber: phone,
+          fingerprint,
+          userBrowserData: getBrowserData()
+        })
+      });
 
-        async function sendToBackend(endpoint, data) {
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+      const data = await res.json();
+      if (data.status) {
+        document.getElementById("phoneSection").classList.add("hidden");
+        document.getElementById("otpSection").classList.remove("hidden");
+        showMessage("OTP sent successfully", "text-green-600");
+      } else {
+        showMessage(data.message || "Failed to send OTP", "text-red-500");
+      }
+    };
 
-            return await response.json();
-        }
+    document.getElementById("verifyOtp").onclick = async () => {
+      const otp = document.getElementById("otp").value.trim();
+      if (!/^\d{4}$/.test(otp)) return showMessage("Invalid OTP", "text-red-500");
 
-        document.getElementById('sendOtp').addEventListener('click', async () => {
-            const phoneNumber = phoneInput.getNumber();
-            if (!phoneInput.isValidNumber()) {
-                document.getElementById('message').textContent = 'Please enter a valid phone number.';
-                return;
-            }
+      const res = await fetch('/otp/verifyotp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp, fingerprint })
+      });
 
-            const userBrowserData = await getBrowserData();
-            const fingerprint = await getClientId();
-
-            const response = await sendToBackend('https://le-crown-interiors-backend.onrender.com/otp/sendotp', {
-                phoneNumber,
-                userBrowserData,
-                fingerprint
-            });
-
-            if (response.status) {
-                document.getElementById('message').textContent = response.message || 'OTP sent successfully.';
-                document.getElementById('otpSection').classList.remove('hidden');
-                document.getElementById('sendOtp').disabled = true;
-            } else {
-                document.getElementById('message').textContent = response.message || 'Failed to send OTP.';
-            }
-        });
-
-        document.getElementById('verifyOtp').addEventListener('click', async () => {
-            const otp = document.getElementById('otp').value;
-            if (!otp) {
-                document.getElementById('message').textContent = 'Please enter the OTP.';
-                return;
-            }
-
-            const response = await sendToBackend('https://le-crown-interiors-backend.onrender.com/otp/verifyotp', {
-                userOtp: otp
-            });
-
-            if (response.status) {
-                document.getElementById('message').textContent = 'OTP verified successfully!';
-            } else {
-                document.getElementById('message').textContent = response.message || 'OTP verification failed.';
-            }
-        });
-    </script>
-
+      const data = await res.json();
+      if (data.status) {
+        showMessage("OTP Verified successfully", "text-green-600");
+        // Handle redirection or further actions here
+      } else {
+        showMessage(data.message || "OTP verification failed", "text-red-500");
+      }
+    };
+  </script>
 </body>
-
 </html>
 `;
