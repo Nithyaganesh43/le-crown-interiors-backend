@@ -1,5 +1,5 @@
 const xss = require('xss');
-const { AuthAttempt } = require('../model/Model');
+const { AuthAttempt, VerifiedUser } = require('../model/Model');
 
 module.exports = async function validator(req, res, next) {
   const { userOtp, phoneNumber, fingerprint, userBrowserData } = req.body;
@@ -16,7 +16,12 @@ module.exports = async function validator(req, res, next) {
     return res
       .status(400)
       .json({ status: false, message: 'Invalid phone number format' });
-
+  const isUserAlreadyVerified = await VerifiedUser.findOne({phoneNumber});
+  if(isUserAlreadyVerified){
+    return res
+      .status(200)
+      .json({ status: true, message: `this number is already verified check your wahtsapp` });
+  }
   const block = async (reason) => {
     await AuthAttempt.updateOne(
       { deviceId: fingerprint },
@@ -64,7 +69,15 @@ module.exports = async function validator(req, res, next) {
       return await block('Language mismatch between headers and client data.');
 
     const attempt = await AuthAttempt.findOne({ deviceId: fingerprint });
-    if (attempt.failedAttempts > 5) return await block('More failed attempted');
+    if (!attempt) {
+      const newAttempt = await new AuthAttempt({ deviceId: fingerprint });
+      await newAttempt.save();
+      next();
+    }
+    if (attempt.failedAttempts > 2) return await block('More failed attempted to send otp');
+    if (attempt.NoAttemptToVerifyOtp > 5)
+      return await block('More failed attempted to verify Otp');
+
     if (attempt.pendingOtp){
       await AuthAttempt.updateOne(
               { deviceId },
@@ -87,7 +100,7 @@ module.exports = async function validator(req, res, next) {
 
     if (isSendOtp) {
       if ( 
-        now - attempt.lastAttemptAt.getTime() < 60000
+        now - attempt.lastAttemptToSendOtp.getTime() < 60000
       ){
         await AuthAttempt.updateOne(
           { deviceId },
@@ -102,11 +115,7 @@ module.exports = async function validator(req, res, next) {
         
         }
     }
-    await AuthAttempt.updateOne(
-      { deviceId: fingerprint },
-      { $set: { lastAttemptAt: new Date() } },
-      { upsert: true }
-    );
+  
     next();
   } catch (err) { 
     return res

@@ -24,7 +24,8 @@ async function sendOtp(phoneNumber, deviceId) {
           phoneNumber,
           pendingOtp: true,
           failedAttempts: 0,
-          lastAttemptAt: new Date(),
+          lastAttemptToSendOtp: new Date(),
+          NoAttemptToVerifyOtp: 0,
         },
       },
       { upsert: true }
@@ -64,7 +65,7 @@ async function verifyOtp(phoneNumber, userOtp, deviceId) {
     } else {
       await AuthAttempt.updateOne(
         { deviceId },
-        { $inc: { failedAttempts: 1 } }
+        { $inc: { failedAttempts: 1 }, $inc: { NoAttemptToVerifyOtp: 1 } }
       );
       return { status: false, message: 'Invalid OTP. Please try again.' };
     }

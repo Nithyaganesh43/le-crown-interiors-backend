@@ -31,11 +31,11 @@ const AuthAttemptSchema = new mongoose.Schema(
     deviceId: { type: String, unique: true, required: true },
     phoneNumber: { type: String },
     failedAttempts: { type: Number, default: 0 },
-    lastAttemptAt: { type: Date, default: Date.now },
+    lastAttemptToSendOtp: { type: Date, default: Date.now },
+    NoAttemptToVerifyOtp: { type: Number, default: 0 },
     reasonForBlocked: { type: String },
     isBlocked: { type: Boolean, default: false },
     blockedAt: { type: Date },
-
     pendingOtp: { type: Boolean, default: false },
   },
   { timestamps: true }
