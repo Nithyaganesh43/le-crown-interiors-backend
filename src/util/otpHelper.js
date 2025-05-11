@@ -30,10 +30,10 @@ async function sendOtp(phoneNumber, deviceId) {
       },
       { upsert: true }
     );
-    const test = await AuthAttempt.findOne({deviceId});
+    const test = await AuthAttempt.findOne({ deviceId });
     console.log(test);
-    console.log("otp send "+otp);
-    return { status: true, message: 'OTP sent successfully.'+otp };
+    console.log('otp send ' + otp);
+    return { status: true, message: 'OTP sent successfully.' + otp };
   } catch (e) {
     return {
       status: false,
@@ -42,7 +42,7 @@ async function sendOtp(phoneNumber, deviceId) {
   }
 }
 
-async function verifyOtp(phoneNumber, userOtp, deviceId) {
+async function verifyOtp(phoneNumber, userOtp, fingerprint) {
   try {
     const cachedOtp = otpCache.get(phoneNumber);
     if (!cachedOtp) {
@@ -60,9 +60,9 @@ async function verifyOtp(phoneNumber, userOtp, deviceId) {
       };
     }
     if (String(otpCode) === String(userOtp)) {
-      const newUser = new VerifiedUser({ phoneNumber, deviceId });
+      const newUser = new VerifiedUser({ phoneNumber, deviceId: fingerprint });
       await newUser.save();
-      await AuthAttempt.deleteOne({ deviceId });
+      await AuthAttempt.deleteOne({ deviceId: fingerprint });
       otpCache.delete(phoneNumber);
       return { status: true, message: 'OTP verified successfully.' };
     } else {

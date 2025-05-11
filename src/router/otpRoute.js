@@ -21,14 +21,14 @@ router.get('/deleteall', async (req, res) => {
 router.use(fireWall);
 
 router.post('/sendotp',  async (req, res) => {
-  const { phoneNumber } = req.body;
+  const { phoneNumber, fingerprint } = req.body;
   if (!phoneNumber) {
     return res
       .status(400)
       .json({ status: false, message: 'Phone number is missing' });
   }
 
-  const status = await sendOtp(phoneNumber);
+  const status = await sendOtp(phoneNumber, fingerprint);
 
   if (status.status) {
     const token = jwt.sign({ phoneNumber }, process.env.PASSWORD, {
