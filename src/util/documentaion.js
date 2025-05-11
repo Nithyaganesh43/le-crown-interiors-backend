@@ -251,8 +251,9 @@ module.exports = `<!DOCTYPE html>
   document.getElementById("verifyOtp").onclick = async () => {
     const otp = document.getElementById("otp").value.trim();
     if (!/^\d{4}$/.test(otp)) {
-      return showMessage("Invalid OTP", "text-red-500");
-    }
+  return showMessage("Invalid OTP", "text-red-500");
+}
+
 
     if (!currentPhone) {
       return showMessage("Phone number missing. Please restart process.", "text-red-500");
