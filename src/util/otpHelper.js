@@ -30,6 +30,9 @@ async function sendOtp(phoneNumber, deviceId) {
       },
       { upsert: true }
     );
+    const test = await AuthAttempt.findOne({deviceId});
+    console.log(test);
+    console.log("otp send "+otp);
     return { status: true, message: 'OTP sent successfully.'+otp };
   } catch (e) {
     return {
