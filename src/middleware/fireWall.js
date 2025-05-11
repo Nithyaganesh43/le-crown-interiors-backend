@@ -1,4 +1,3 @@
- 
 const xss = require('xss');
 const { AuthAttempt, VerifiedUser } = require('../model/Model');
 
@@ -18,7 +17,7 @@ module.exports = async function validator(req, res, next) {
   try {
     if (b.phoneNumber) {
       let n = b.phoneNumber.replace(/[^\d]/g, '');
-      b.phoneNumber = n.startsWith('91') ? '+' + n : '+91' + n;
+      b.phoneNumber = n.startsWith('91') ? `+${n}` : `+91${n}`;
       if (!/^\+91\d{10}$/.test(b.phoneNumber))
         return res
           .status(400)
@@ -32,7 +31,10 @@ module.exports = async function validator(req, res, next) {
     const origin = xss(req.get('Origin') || '');
     const referer = xss(req.get('Referer') || '');
     const ua = xss(req.get('User-Agent') || '');
-    const lang = xss(req.get('Accept-Language')?.split(',')[0] || '');
+    const lang = xss(
+      req.get('Accept-Language')?.split(',')[0].split('-')[0] || ''
+    );
+
     if (
       !origin ||
       !referer ||
@@ -42,9 +44,12 @@ module.exports = async function validator(req, res, next) {
       !v.language
     )
       return await block('Blocked: invalid client');
+
     if (ua !== v.userAgent) return await block('Blocked: user agent mismatch');
+
     const clientLang = v.language.split('-')[0];
-    if (lang !== clientLang) return await block('Blocked: language mismatch');
+    if (lang && clientLang && lang !== clientLang)
+      return await block('Blocked: language mismatch');
 
     if (!b.phoneNumber && !b.userOtp) return next();
 
@@ -72,11 +77,14 @@ module.exports = async function validator(req, res, next) {
       return res
         .status(429)
         .json({ status: false, message: 'OTP sent. Wait for verification' });
+
     if (e.isBlocked && e.blockedAt && now - e.blockedAt.getTime() < 86400000)
       return res
         .status(403)
         .json({ status: false, message: 'Blocked for 24 hours' });
+
     if (e.failedAttempts >= 3) return await block('Too many attempts');
+
     if (e.lastAttemptAt && now - e.lastAttemptAt.getTime() < 60000)
       return await block('Too frequent attempts');
 
