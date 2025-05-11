@@ -4,7 +4,7 @@ const { AuthAttempt, VerifiedUser } = require('../model/Model');
 module.exports = async function validator(req, res, next) {
   try {
     const { userOtp, phoneNumber, fingerprint, userBrowserData } = req.body;
-
+console.log('fingerprint ' + fingerprint);
     const origin = xss(req.get('Origin') || '');
     const referer = xss(req.get('Referer') || '');
     const userAgent = xss(req.get('User-Agent') || '');

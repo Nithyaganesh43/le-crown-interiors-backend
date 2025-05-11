@@ -43,10 +43,9 @@
 
         async function getClientId() {
             const fp = await FingerprintJS.load();
-            const res = await fp.get();
+            const res = await fp.get(); 
             return res.visitorId;
-        }
-
+        } 
         async function sendotp() {
             const userBrowserData = await getBrowserData();
             const fingerprint = await getClientId();
