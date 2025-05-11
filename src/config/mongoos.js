@@ -19,8 +19,7 @@ const connectToDb = async () => {
 };
 
 module.exports = connectToDb;
- 
-const mongoose = require('mongoose');
+  
 
 (async () => {
   try {
