@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Data Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+
+<body>
+    <script>
+        async function getBrowserData() {
+            const data = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                colorDepth: screen.colorDepth,
+                deviceMemory: navigator.deviceMemory,
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                timezoneOffset: (new Date()).getTimezoneOffset(),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                localStorage: !!window.localStorage,
+                sessionStorage: !!window.sessionStorage,
+                cookieEnabled: navigator.cookieEnabled
+            };
+            return data;
+        }
+
+        async function getClientId() {
+            const fp = await FingerprintJS.load();
+            const res = await fp.get();
+            return res.visitorId;
+        }
+
+        async function sendToBackend() {
+            const userBrowserData = await getBrowserData();
+            const fingerprint = await getClientId();
+
+            const response = await fetch('http://localhost:3000/compare-browser-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userBrowserData,
+                    fingerprint
+                })
+            });
+
+            const data = await response.json();
+            console.log(data);
+        }
+
+        sendToBackend();
+    </script>
+</body>
+
+</html>

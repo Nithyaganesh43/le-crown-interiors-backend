@@ -4,7 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const { uploadImg, deleteImg } = require('../util/cloudinary');
-const Image = require('../model/image');
+const {Image }= require('../model/Model');
 const upload = multer({ storage: multer.memoryStorage() });
 const validator = require('../util/validation');
 let allData;
