@@ -45,9 +45,12 @@ async function verifyOtp(phoneNumber, userOtp) {
         otpCache.delete(phoneNumber);
         return { status: false, message: 'OTP has expired' };
       }
-      console.log("verify :userOtp: "+userOtp +" userPhno " + phoneNumber +" real otp "+otpCode);
-      
-      if (otpCode === userOtp) {
+
+      console.log(
+        `verify: userOtp: ${userOtp} userPhno: ${phoneNumber} real otp: ${otpCode}`
+      );
+
+      if (String(otpCode) === String(userOtp)) {
         const newUser = new VerifiedUser({ phoneNumber });
         newUser.save().catch(() => {});
 
