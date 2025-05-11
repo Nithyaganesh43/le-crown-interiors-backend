@@ -54,14 +54,11 @@
             try {
                 const response = await fetch('https://le-crown-interiors-backend.onrender.com/otp/sendotp', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userBrowserData,
-                        fingerprint, phoneNumber
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ userBrowserData, fingerprint, phoneNumber })
                 });
+
 
                 const data = await response.json();
                 document.getElementById("message").innerHTML = data.message;
@@ -76,15 +73,12 @@
                 const userOtp = document.getElementById("otp").value;
                try{
                 const response = await fetch('https://le-crown-interiors-backend.onrender.com/otp/verifyotp', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userBrowserData,
-                        fingerprint, userOtp
-                    })
-                });
+                       method: 'POST',
+                       headers: { 'Content-Type': 'application/json' },
+                       credentials: 'include',
+                       body: JSON.stringify({ userBrowserData, fingerprint, userOtp })
+                   });
+
 
                 const data = await response.json();
                 document.getElementById("message").innerHTML = data.message;

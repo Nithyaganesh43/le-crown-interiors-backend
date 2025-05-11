@@ -12,25 +12,23 @@ async function sendOtp(phoneNumber, deviceId) {
   try {
     const otp = generateFourDigitNumber();
     const url = `https://2factor.in/API/V1/${process.env.FACTOR_API_Key}/SMS/${phoneNumber}/${otp}/OTP1`;
-
     const response = await axios.get(url);
-
     if (response.status !== 200 || response.data?.Status !== 'Success') {
       return { status: false, message: 'Failed to send OTP via provider.' };
     }
-
     otpCache.set(phoneNumber, { otpCode: otp, createdAt: Date.now() });
-
     await AuthAttempt.updateOne(
       { deviceId },
       {
         $set: {
           phoneNumber,
-          pendingOtp: true, failedAttempts: 0 }, 
+          pendingOtp: true,
+          failedAttempts: 0,
+          lastAttemptAt: new Date(),
+        },
       },
       { upsert: true }
     );
-
     return { status: true, message: 'OTP sent successfully.' };
   } catch (e) {
     return {
@@ -43,16 +41,13 @@ async function sendOtp(phoneNumber, deviceId) {
 async function verifyOtp(phoneNumber, userOtp, deviceId) {
   try {
     const cachedOtp = otpCache.get(phoneNumber);
-
     if (!cachedOtp) {
       return {
         status: false,
         message: 'No OTP found for this number. Please request again.',
       };
     }
-
     const { otpCode, createdAt } = cachedOtp;
-
     if (Date.now() - createdAt > OTP_EXPIRY_TIME) {
       otpCache.delete(phoneNumber);
       return {
@@ -60,28 +55,17 @@ async function verifyOtp(phoneNumber, userOtp, deviceId) {
         message: 'OTP has expired. Please request a new one.',
       };
     }
-
     if (String(otpCode) === String(userOtp)) {
-      await VerifiedUser.updateOne(
-        { phoneNumber },
-        { $set: { phoneNumber, deviceId } },
-        { upsert: true }
-      );
-
-      await AuthAttempt.updateOne(
-        { deviceId },
-        { $set: { failedAttempts: 0, pendingOtp: false } }
-      );
-
+      const newUser = new VerifiedUser({ phoneNumber, deviceId });
+      await newUser.save();
+      await AuthAttempt.deleteOne({ deviceId });
       otpCache.delete(phoneNumber);
-
       return { status: true, message: 'OTP verified successfully.' };
     } else {
       await AuthAttempt.updateOne(
         { deviceId },
         { $inc: { failedAttempts: 1 } }
       );
-
       return { status: false, message: 'Invalid OTP. Please try again.' };
     }
   } catch (e) {
