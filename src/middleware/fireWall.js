@@ -5,7 +5,7 @@ module.exports = async function validator(req, res, next) {
   const b = req.body;
   const f = b.fingerprint;
   const now = Date.now();
-  if (b.userOtp && !/^\d{6}$/.test(b.userOtp))
+  if (b.userOtp && !/^\d{4}$/.test(b.userOtp))
     return res.status(400).json({ status: false, message: 'Invalid OTP' });
   if (b.phoneNumber && !/^\d{10}$/.test(b.phoneNumber))
     return res
