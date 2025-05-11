@@ -5,7 +5,6 @@ const { sendOtp, verifyOtp } = require('../util/otpHelper');
 const jwt = require('jsonwebtoken');
 
 router.post('/sendotp', fireWall, async (req, res) => {
-  console.log(req.body);
   const { phoneNumber } = req.body;
   if (!phoneNumber) {
     return res
