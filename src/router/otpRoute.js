@@ -49,7 +49,7 @@ res.status(200).json(status);
 });
 
 router.post('/verifyotp', async (req, res) => {
-  const { userOtp } = req.body;
+  const { userOtp, fingerprint } = req.body;
   const token = req.cookies.token;
 
   if (!token) {
@@ -59,7 +59,7 @@ router.post('/verifyotp', async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.PASSWORD);
     const phoneNumber = decoded.phoneNumber;
-    const status = await verifyOtp(phoneNumber, userOtp);
+    const status = await verifyOtp(phoneNumber, userOtp, fingerprint);
 
     if (status.status) {
       res.status(200).json(status);
