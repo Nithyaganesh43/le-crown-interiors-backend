@@ -44,7 +44,6 @@ router.post('/verifyotp', async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.PASSWORD);
     const phoneNumber = decoded.phoneNumber;
-console.log("verify :userOtp: "+userOtp +" userPhno " + phoneNumber);
     const status = await verifyOtp(phoneNumber, userOtp);
 
     if (status.status) {
