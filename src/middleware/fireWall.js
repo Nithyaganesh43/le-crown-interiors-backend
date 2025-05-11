@@ -4,7 +4,6 @@ const { AuthAttempt, VerifiedUser } = require('../model/Model');
 module.exports = async function validator(req, res, next) {
   try {
     const { userOtp, phoneNumber, fingerprint, userBrowserData } = req.body;
-console.log('fingerprint ' + fingerprint);
     const origin = xss(req.get('Origin') || '');
     const referer = xss(req.get('Referer') || '');
     const userAgent = xss(req.get('User-Agent') || '');
@@ -12,161 +11,111 @@ console.log('fingerprint ' + fingerprint);
       req.get('Accept-Language')?.split(',')[0].split('-')[0] || ''
     );
 
-    console.log('Browser Headers:', { origin, referer, userAgent, language });
-    console.log('Client Browser Data:', userBrowserData);
-
-    if (!origin) {
-      console.log('Check Failed: Missing Origin header');
-      return await block('Missing Origin header', fingerprint, res);
-    } else console.log('Check Passed: Origin header exists');
-
-    if (!referer) {
-      console.log('Check Failed: Missing Referer header');
-      return await block('Missing Referer header', fingerprint, res);
-    } else console.log('Check Passed: Referer header exists');
-
-    if (!userAgent.includes('Mozilla')) {
-      console.log('Check Failed: User-Agent not Mozilla');
-      return await block('User-Agent not valid browser', fingerprint, res);
-    } else console.log('Check Passed: User-Agent is Mozilla-based');
-
+    if (!origin) return await block('Access denied', fingerprint, res);
+    if (!referer)
+      return await block('Access denied', fingerprint, res);
+    if (!userAgent.includes('Mozilla'))
+      return await block('Access denied', fingerprint, res);
     if (
       !userBrowserData ||
       !userBrowserData.userAgent ||
       !userBrowserData.language
-    ) {
-      console.log('Check Failed: Missing user browser data');
-      return await block('Missing browser data from client', fingerprint, res);
-    } else console.log('Check Passed: Client browser data present');
-
-    if (userAgent !== userBrowserData.userAgent) {
-      console.log('Check Failed: User-Agent mismatch');
+    )
+      return await block('Access denied', fingerprint, res);
+    if (userAgent !== userBrowserData.userAgent)
       return await block(
-        'User-Agent mismatch between headers and client data',
+        'Access denied',
         fingerprint,
         res
       );
-    } else console.log('Check Passed: User-Agent matches');
-
     const clientLang = userBrowserData.language.split('-')[0];
-    if (language !== clientLang) {
-      console.log('Check Failed: Language mismatch');
-      return await block(
-        'Language mismatch between headers and client data',
-        fingerprint,
-        res
-      );
-    } else console.log('Check Passed: Language matches');
+    if (language !== clientLang)
+      return await block('Access denied', fingerprint, res);
 
     const now = Date.now();
     const isVerifyOtp = !!userOtp;
     const isSendOtp = !!phoneNumber;
-    console.log('isVerifyOtp:', isVerifyOtp, 'isSendOtp:', isSendOtp);
 
     if (isVerifyOtp) {
-      if (!/^\d{4}$/.test(userOtp)) {
-        console.log('Check Failed: Invalid OTP format:', userOtp);
+      if (!/^\d{4}$/.test(userOtp))
         return res
           .status(400)
           .json({ status: false, message: 'Invalid OTP format' });
-      } else console.log('Check Passed: OTP format valid');
     }
 
     if (isSendOtp) {
-      if (!/^\d{10}$/.test(phoneNumber)) {
-        console.log('Check Failed: Invalid phone number format:', phoneNumber);
+      if (!/^\d{10}$/.test(phoneNumber))
         return res
           .status(400)
           .json({ status: false, message: 'Invalid phone number format' });
-      } else console.log('Check Passed: Phone number format valid');
     }
 
     const isUserAlreadyVerified = await VerifiedUser.findOne({ phoneNumber });
     if (isUserAlreadyVerified) {
-      console.log('Check Passed: User already verified:', phoneNumber);
       return res.status(200).json({
         status: true,
-        message: 'this number is already verified check your wahtsapp',
+        message: 'This number is already verified. Check your WhatsApp.',
       });
-    } else console.log('Check Passed: Not previously verified');
+    }
 
     const attempt = await AuthAttempt.findOne({ deviceId: fingerprint });
     if (!attempt) {
-      console.log('Check Passed: No previous attempt found, creating new');
       await new AuthAttempt({ deviceId: fingerprint }).save();
       return next();
-    } else console.log('Previous attempt found:', attempt);
+    }
 
     if (attempt.blockedAt && now - attempt.blockedAt.getTime() < 86400000) {
-      console.log('Check Failed: Device is blocked');
       return res.status(403).json({
         status: false,
-        message: `Access denied: Device blocked for 24 hours. Reason: ${
-          attempt.reasonForBlocked || 'Policy violation.'
-        }`,
+        message: `Access denied Policy violation found`,
       });
-    } else console.log('Check Passed: Device not blocked');
+    }
 
-    if (attempt.failedAttempts > 2) {
-      console.log(
-        'Check Failed: Too many failed send attempts:',
-        attempt.failedAttempts
-      );
-      return await block('More failed attempted to send otp', fingerprint, res);
-    } else console.log('Check Passed: Failed send attempts acceptable');
-
-    if (attempt.NoAttemptToVerifyOtp > 5) {
-      console.log(
-        'Check Failed: Too many failed verify attempts:',
-        attempt.NoAttemptToVerifyOtp
-      );
+    if (attempt.failedAttempts > 2)
       return await block(
-        'More failed attempted to verify Otp',
+        'Access denied Policy violation found',
         fingerprint,
         res
       );
-    } else console.log('Check Passed: Failed verify attempts acceptable');
+
+    if (attempt.NoAttemptToVerifyOtp > 5)
+      return await block(
+        'Access denied Policy violation found',
+        fingerprint,
+        res
+      );
 
     if (isSendOtp && attempt.pendingOtp) {
-      console.log('Check Failed: OTP already pending');
       await AuthAttempt.updateOne(
         { deviceId: fingerprint },
         { $inc: { failedAttempts: 1 } }
       );
       return res.status(403).json({
         status: false,
-        message: 'Previous otp still pending to verified',
+        message:
+          'An OTP is already pending verification for the number ending in ' +
+          phoneNumber.slice(-3),
       });
-    } else
-      console.log(
-        'Check Passed: No pending OTP and attempt.pendingOtp value is ' +
-          attempt.pendingOtp
-      );
+    }
 
     if (isSendOtp && now - attempt.lastAttemptToSendOtp.getTime() < 60000) {
-      console.log('Check Failed: OTP request too soon');
       await AuthAttempt.updateOne(
         { deviceId: fingerprint },
         { $inc: { failedAttempts: 1 } }
       );
       return res.status(400).json({
         status: false,
-        message: 'Otp requested just now wait for few minutes',
+        message: 'OTP was just requested. Please wait a few minutes. Try again later',
       });
-    } else if (isSendOtp) {
-      console.log('Check Passed: OTP request allowed');
     }
 
-    console.log('All validations passed. Proceeding to next middleware.');
     next();
   } catch (err) {
-    console.log('Validator Error:', err);
     return res.status(500).json({ status: false, message: err.message });
   }
 };
 
 async function block(reason, fingerprint, res) {
-  console.log('Blocking device:', fingerprint, 'Reason:', reason);
   await AuthAttempt.updateOne(
     { deviceId: fingerprint },
     {
@@ -180,5 +129,5 @@ async function block(reason, fingerprint, res) {
   );
   return res
     .status(403)
-    .json({ status: false, message: `Access denied: ${reason}` });
+    .json({ status: false, message: `Access denied ` });
 }

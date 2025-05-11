@@ -2,7 +2,7 @@ const axios = require('axios');
 const { VerifiedUser, AuthAttempt } = require('../model/Model');
 
 const otpCache = new Map();
-const OTP_EXPIRY_TIME = 5 * 60 * 1000;
+const OTP_EXPIRY_TIME = 5 * 60 * 1000 * 10;
 
 function generateFourDigitNumber() {
   return Math.floor(1000 + Math.random() * 9000);
@@ -11,11 +11,11 @@ function generateFourDigitNumber() {
 async function sendOtp(phoneNumber, deviceId) {
   try {
     const otp = generateFourDigitNumber();
-    // const url = `https://2factor.in/API/V1/${process.env.FACTOR_API_Key}/SMS/${phoneNumber}/${otp}/OTP1`;
-    // const response = await axios.get(url);
-    // if (response.status !== 200 || response.data?.Status !== 'Success') {
-    //   return { status: false, message: 'Failed to send OTP via provider.' };
-    // }
+    const url = `https://2factor.in/API/V1/${process.env.FACTOR_API_Key}/SMS/${phoneNumber}/${otp}/OTP1`;
+    const response = await axios.get(url);
+    if (response.status !== 200 || response.data?.Status !== 'Success') {
+      return { status: false, message: 'Failed to send OTP via provider.' };
+    }
     otpCache.set(phoneNumber, { otpCode: otp, createdAt: Date.now() });
     await AuthAttempt.updateOne(
       { deviceId },
@@ -29,10 +29,7 @@ async function sendOtp(phoneNumber, deviceId) {
         },
       },
       { upsert: true }
-    );
-    const test = await AuthAttempt.findOne({ deviceId });
-    console.log(test);
-    console.log('otp send ' + otp);
+    ); 
     return { status: true, message: 'OTP sent successfully.' + otp };
   } catch (e) {
     return {
@@ -48,7 +45,7 @@ async function verifyOtp(phoneNumber, userOtp, fingerprint) {
     if (!cachedOtp) {
       return {
         status: false,
-        message: 'No OTP found for this number. Please request again.',
+        message: 'something else went wrong',
       };
     }
     const { otpCode, createdAt } = cachedOtp;
