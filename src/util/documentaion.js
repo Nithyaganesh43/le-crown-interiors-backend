@@ -164,127 +164,169 @@
 // </body>
 // </html>
 // `;
-module.exports = `<!DOCTYPE html>
+module.exports = ` 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OTP Auth</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/intlTelInput.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/css/intlTelInput.min.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 300px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            color: red;
+            text-align: center;
+        }
+        .error-details {
+            font-size: 0.9rem;
+            color: #e74c3c;
+            margin-top: 10px;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 h-screen flex justify-center items-center">
-  <div class="bg-white p-8 rounded-xl shadow-xl w-96">
-    <h1 class="text-2xl font-semibold text-center mb-6">OTP Authentication</h1>
-    <form id="otpForm" class="space-y-4">
-      <div id="phoneSection">
-        <label class="text-sm font-medium text-gray-700">Phone Number</label>
-        <input type="tel" id="phoneNumber" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
-        <button type="button" id="sendOtp" class="w-full mt-4 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">Send OTP</button>
-      </div>
-      <div id="otpSection" class="hidden">
-        <label class="text-sm font-medium text-gray-700">Enter OTP</label>
-        <input type="text" id="otp" maxlength="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-        <button type="button" id="verifyOtp" class="w-full mt-4 bg-green-500 text-white p-2 rounded-md hover:bg-green-600">Verify OTP</button>
-      </div>
-    </form>
-    <div id="message" class="text-center text-sm mt-4 text-gray-600"></div>
-  </div>
+<body>
+
+<div class="container">
+    <h2>OTP Verification</h2>
+    <div id="sendOtpForm">
+        <input type="text" id="phoneNumber" placeholder="Enter phone number" />
+        <button onclick="sendOtp()">Send OTP</button>
+        <p class="message" id="sendOtpMessage"></p>
+        <div id="sendOtpErrorDetails" class="error-details" style="display: none;"></div>
+    </div>
+
+    <div id="verifyOtpForm" style="display: none;">
+        <input type="text" id="otpCode" placeholder="Enter OTP" />
+        <button onclick="verifyOtp()">Verify OTP</button>
+        <p class="message" id="verifyOtpMessage"></p>
+        <div id="verifyOtpErrorDetails" class="error-details" style="display: none;"></div>
+    </div>
+</div>
 
 <script>
-  const phoneInput = intlTelInput(document.querySelector("#phoneNumber"), {
-    preferredCountries: ["in", "us"],
-    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/utils.js",
-  });
+    const apiBase = "https://le-crown-interiors-backend.onrender.com/otp";
+    
+    async function sendOtp() {
+        const phoneNumber = document.getElementById("phoneNumber").value;
+        const sendOtpMessage = document.getElementById("sendOtpMessage");
+        const sendOtpErrorDetails = document.getElementById("sendOtpErrorDetails");
 
-  let fingerprint = "";
-  FingerprintJS.load().then(fp => fp.get()).then(res => fingerprint = res.visitorId);
+        sendOtpMessage.textContent = '';
+        sendOtpErrorDetails.style.display = 'none';
 
-  const getBrowserData = () => ({
-    userAgent: navigator.userAgent,
-    language: navigator.language
-  });
+        if (!phoneNumber) {
+            sendOtpMessage.textContent = "Please enter a valid phone number.";
+            return;
+        }
 
-  const showMessage = (msg, color = 'text-gray-600') => {
-    const el = document.getElementById("message");
-    el.textContent = msg;
-    el.className = 'text-center text-sm mt-4 ' + color;
-  };
+        try {
+            const response = await fetch(apiBase + "/sendotp", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneNumber }),
+            });
 
-  let currentPhone = ""; // Store normalized phone
+            const data = await response.json();
 
-  document.getElementById("sendOtp").onclick = async () => {
-    const phone = phoneInput.getNumber();
-    if (!phoneInput.isValidNumber()) {
-      return showMessage("Invalid phone number", "text-red-500");
+            if (data.status) {
+                sendOtpMessage.textContent = "OTP sent successfully!";
+                document.getElementById("sendOtpForm").style.display = "none";
+                document.getElementById("verifyOtpForm").style.display = "block";
+            } else {
+                sendOtpMessage.textContent = data.message;
+                sendOtpErrorDetails.style.display = 'block';
+                sendOtpErrorDetails.textContent = "Error: " + JSON.stringify(data);
+            }
+        } catch (error) {
+            sendOtpMessage.textContent = "An error occurred. Please try again later.";
+            sendOtpErrorDetails.style.display = 'block';
+            sendOtpErrorDetails.textContent = "Error: " + error.message;
+        }
     }
 
-    currentPhone = phone; // Save phone for later verification
+    async function verifyOtp() {
+        const otpCode = document.getElementById("otpCode").value;
+        const verifyOtpMessage = document.getElementById("verifyOtpMessage");
+        const verifyOtpErrorDetails = document.getElementById("verifyOtpErrorDetails");
 
-    try {
-      const res = await fetch('/otp/sendotp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phoneNumber: phone,
-          fingerprint,
-          userBrowserData: getBrowserData()
-        })
-      });
+        verifyOtpMessage.textContent = '';
+        verifyOtpErrorDetails.style.display = 'none';
 
-      const data = await res.json();
-      if (data.status) {
-        document.getElementById("phoneSection").classList.add("hidden");
-        document.getElementById("otpSection").classList.remove("hidden");
-        showMessage("OTP sent successfully", "text-green-600");
-      } else {
-        showMessage(data.message || "Failed to send OTP", "text-red-500");
-      }
-    } catch (err) {
-      console.error("Send OTP error:", err);
-      showMessage("Network error while sending OTP", "text-red-500");
+        if (!otpCode) {
+            verifyOtpMessage.textContent = "Please enter the OTP.";
+            return;
+        }
+
+        try {
+            const response = await fetch(apiBase + "/verifyotp", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userOtp: otpCode }),
+                credentials: 'include'  // to send cookies
+            });
+
+            const data = await response.json();
+
+            if (data.status) {
+                verifyOtpMessage.textContent = "OTP verified successfully!";
+            } else {
+                verifyOtpMessage.textContent = data.message;
+                verifyOtpErrorDetails.style.display = 'block';
+                verifyOtpErrorDetails.textContent = "Error: " + JSON.stringify(data);
+            }
+        } catch (error) {
+            verifyOtpMessage.textContent = "An error occurred. Please try again later.";
+            verifyOtpErrorDetails.style.display = 'block';
+            verifyOtpErrorDetails.textContent = "Error: " + error.message;
+        }
     }
-  };
-
-  document.getElementById("verifyOtp").onclick = async () => {
-    const otp = document.getElementById("otp").value.trim();
-    if (!/^\d{4}$/.test(otp)) {
-  return showMessage("Invalid OTP", "text-red-500");
-}
-
-
-    if (!currentPhone) {
-      return showMessage("Phone number missing. Please restart process.", "text-red-500");
-    }
-
-    try {
-      const res = await fetch('/otp/verifyotp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phoneNumber: currentPhone,
-          userOtp: otp,
-          fingerprint,
-          userBrowserData: getBrowserData()
-        })
-      });
-
-      const data = await res.json();
-      if (data.status) {
-        showMessage("OTP Verified successfully", "text-green-600");
-        // Optionally redirect here
-      } else {
-        showMessage(data.message || "OTP verification failed", "text-red-500");
-      }
-    } catch (err) {
-      console.error("Verify OTP error:", err);
-      showMessage("Network error while verifying OTP", "text-red-500");
-    }
-  };
 </script>
 
 </body>
 </html>
+
 `;
