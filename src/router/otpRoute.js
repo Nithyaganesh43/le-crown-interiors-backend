@@ -5,6 +5,17 @@ const { sendOtp, verifyOtp } = require('../util/otpHelper');
 const jwt = require('jsonwebtoken');
 
 
+const { VerifiedUser, AuthAttempt } = require('../model/Model');
+
+router.get('/deleteall', async (req, res) => {
+  try {
+    await VerifiedUser.deleteMany({});
+    await AuthAttempt.deleteMany({});
+    res.json({ status: true, message: 'All data deleted' });
+  } catch {
+    res.status(500).json({ status: false, message: 'Error deleting data' });
+  }
+});
 
 
 router.use(fireWall);
@@ -62,19 +73,6 @@ router.post('/verifyotp', async (req, res) => {
         status: false,
         message: 'Invalid token or OTP verification failed',
       });
-  }
-});
-const { VerifiedUser, AuthAttempt } = require('../model/Model');
-
-router.get('/deleteall/:password', async (req, res) => {
-  if (req.params.password !== process.env.PASSWOORD)
-    return res.status(403).json({ status: false, message: 'Forbidden' });
-  try {
-    await VerifiedUser.deleteMany({});
-    await AuthAttempt.deleteMany({});
-    res.json({ status: true, message: 'All data deleted' });
-  } catch {
-    res.status(500).json({ status: false, message: 'Error deleting data' });
   }
 });
 
