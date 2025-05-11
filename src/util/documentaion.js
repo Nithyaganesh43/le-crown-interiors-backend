@@ -193,31 +193,37 @@ module.exports = `<!DOCTYPE html>
     <div id="message" class="text-center text-sm mt-4 text-gray-600"></div>
   </div>
 
-  <script>
-    const phoneInput = intlTelInput(document.querySelector("#phoneNumber"), {
-      preferredCountries: ["in", "us"],
-      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/utils.js",
-    });
+<script>
+  const phoneInput = intlTelInput(document.querySelector("#phoneNumber"), {
+    preferredCountries: ["in", "us"],
+    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.15/build/js/utils.js",
+  });
 
-    let fingerprint = "";
-    FingerprintJS.load().then(fp => fp.get()).then(res => fingerprint = res.visitorId);
+  let fingerprint = "";
+  FingerprintJS.load().then(fp => fp.get()).then(res => fingerprint = res.visitorId);
 
-    const getBrowserData = () => ({
-      userAgent: navigator.userAgent,
-      language: navigator.language
-    });
+  const getBrowserData = () => ({
+    userAgent: navigator.userAgent,
+    language: navigator.language
+  });
 
-    const showMessage = (msg, color = 'text-gray-600') => {
-      const el = document.getElementById("message");
-      el.textContent = msg;
+  const showMessage = (msg, color = 'text-gray-600') => {
+    const el = document.getElementById("message");
+    el.textContent = msg;
     el.className = 'text-center text-sm mt-4 ' + color;
+  };
 
-    };
+  let currentPhone = ""; // Store normalized phone
 
-    document.getElementById("sendOtp").onclick = async () => {
-      const phone = phoneInput.getNumber();
-      if (!phoneInput.isValidNumber()) return showMessage("Invalid phone number", "text-red-500");
+  document.getElementById("sendOtp").onclick = async () => {
+    const phone = phoneInput.getNumber();
+    if (!phoneInput.isValidNumber()) {
+      return showMessage("Invalid phone number", "text-red-500");
+    }
 
+    currentPhone = phone; // Save phone for later verification
+
+    try {
       const res = await fetch('/otp/sendotp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -236,27 +242,48 @@ module.exports = `<!DOCTYPE html>
       } else {
         showMessage(data.message || "Failed to send OTP", "text-red-500");
       }
-    };
+    } catch (err) {
+      console.error("Send OTP error:", err);
+      showMessage("Network error while sending OTP", "text-red-500");
+    }
+  };
 
-    document.getElementById("verifyOtp").onclick = async () => {
-      const otp = document.getElementById("otp").value.trim();
-      if (!/^\d{4}$/.test(otp)) return showMessage("Invalid OTP", "text-red-500");
+  document.getElementById("verifyOtp").onclick = async () => {
+    const otp = document.getElementById("otp").value.trim();
+    if (!/^\d{4}$/.test(otp)) {
+      return showMessage("Invalid OTP", "text-red-500");
+    }
 
+    if (!currentPhone) {
+      return showMessage("Phone number missing. Please restart process.", "text-red-500");
+    }
+
+    try {
       const res = await fetch('/otp/verifyotp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp, fingerprint })
+        body: JSON.stringify({
+          phoneNumber: currentPhone,
+          userOtp: otp,
+          fingerprint,
+          userBrowserData: getBrowserData()
+        })
       });
 
       const data = await res.json();
       if (data.status) {
         showMessage("OTP Verified successfully", "text-green-600");
-        // Handle redirection or further actions here
+        // Optionally redirect here
       } else {
         showMessage(data.message || "OTP verification failed", "text-red-500");
       }
-    };
-  </script>
+    } catch (err) {
+      console.error("Verify OTP error:", err);
+      showMessage("Network error while verifying OTP", "text-red-500");
+    }
+  };
+</script>
+
 </body>
 </html>
 `;
