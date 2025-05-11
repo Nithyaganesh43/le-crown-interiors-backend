@@ -210,7 +210,8 @@ module.exports = `<!DOCTYPE html>
     const showMessage = (msg, color = 'text-gray-600') => {
       const el = document.getElementById("message");
       el.textContent = msg;
-      el.className = 'text-center text-sm mt-4 ${color}';
+    el.className = 'text-center text-sm mt-4 ' + color;
+
     };
 
     document.getElementById("sendOtp").onclick = async () => {
