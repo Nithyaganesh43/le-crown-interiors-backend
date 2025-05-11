@@ -194,95 +194,85 @@ module.exports = `<!DOCTYPE html>
       <button id="verify" class="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700">Verify OTP</button>
     </div>
   </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  let fpId = "";
+  let iti;
 
-  <script>
-    let fpId = "";
-    let iti;
+  FingerprintJS.load().then(fp => fp.get().then(result => {
+    fpId = result.visitorId;
+  }));
 
-    // Load fingerprint
-    FingerprintJS.load().then(fp => fp.get().then(result => {
-      fpId = result.visitorId;
-    }));
+  iti = window.intlTelInput(document.querySelector("#phone"), {
+    preferredCountries: ["in", "us"],
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+  });
 
-    // Initialize intl-tel-input
-    window.onload = () => {
-      iti = window.intlTelInput(document.querySelector("#phone"), {
-        preferredCountries: ["in", "us"],
-        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-      });
+  function getBrowserData() {
+    return {
+      userAgent: navigator.userAgent,
+      language: navigator.language
     };
+  }
 
-    // Get browser info
-    function getBrowserData() {
-      return {
-        userAgent: navigator.userAgent,
-        language: navigator.language
-      };
+  function show(message) {
+    const msgEl = document.getElementById("msg");
+    msgEl.textContent = message;
+    msgEl.className = "text-center text-sm mb-4 " + (message.toLowerCase().includes("success") ? "text-green-600" : "text-red-600");
+  }
+
+  function toggle(showOtp) {
+    document.getElementById("phone-section").classList.toggle("hidden", showOtp);
+    document.getElementById("otp-section").classList.toggle("hidden", !showOtp);
+  }
+
+  document.getElementById("send").addEventListener("click", () => {
+    const phone = iti.getNumber();
+    if (!iti.isValidNumber()) {
+      show("Invalid phone number");
+      return;
     }
 
-    // Show message
-    function show(message) {
-      const msgEl = document.getElementById("msg");
-      msgEl.textContent = message;
-      msgEl.classList.remove("text-green-600", "text-red-600");
-      msgEl.classList.add(message.toLowerCase().includes("success") ? "text-green-600" : "text-red-600");
+    fetch("/otp/sendotp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phoneNumber: phone,
+        fingerprint: fpId,
+        userBrowserData: getBrowserData()
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status) toggle(true);
+      show(data.message);
+    })
+    .catch(() => show("Error sending OTP"));
+  });
+
+  document.getElementById("verify").addEventListener("click", () => {
+    const otp = document.getElementById("otp").value.trim();
+    if (!/^\d{4}$/.test(otp)) {
+      show("Invalid OTP format");
+      return;
     }
 
-    // Toggle visibility
-    function toggle(showOtp) {
-      document.getElementById("phone-section").classList.toggle("hidden", showOtp);
-      document.getElementById("otp-section").classList.toggle("hidden", !showOtp);
-    }
-
-    // Send OTP
-    document.getElementById("send").onclick = () => {
-      const phone = iti.getNumber();
-      if (!iti.isValidNumber()) {
-        show("Invalid phone number");
-        return;
-      }
-
-      fetch("/otp/sendotp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phoneNumber: phone,
-          fingerprint: fpId,
-          userBrowserData: getBrowserData()
-        })
+    fetch("/otp/verifyotp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userOtp: otp,
+        fingerprint: fpId,
+        userBrowserData: getBrowserData()
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status) {
-          toggle(true);
-        }
-        show(data.message);
-      })
-      .catch(() => show("Error sending OTP"));
-    };
+    })
+    .then(res => res.json())
+    .then(data => show(data.message))
+    .catch(() => show("Error verifying OTP"));
+  });
+});
+</script>
 
-    // Verify OTP
-    document.getElementById("verify").onclick = () => {
-      const otp = document.getElementById("otp").value.trim();
-      if (!/^\d{4}$/.test(otp)) {
-        show("Invalid OTP format");
-        return;
-      }
-
-      fetch("/otp/verifyotp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userOtp: otp,
-          fingerprint: fpId,
-          userBrowserData: getBrowserData()
-        })
-      })
-      .then(res => res.json())
-      .then(data => show(data.message))
-      .catch(() => show("Error verifying OTP"));
-    };
-  </script>
 </body>
 </html>
 
