@@ -72,7 +72,7 @@ module.exports = async function validator(req, res, next) {
     if (!attempt) {
       const newAttempt = await new AuthAttempt({ deviceId: fingerprint });
       await newAttempt.save();
-      next();
+      return next();
     }
 
     if (attempt.failedAttempts > 2)
