@@ -1,120 +1,67 @@
+ base url 
 
 
-api documentaion 
-do this for all api endpoints 
+ https://le-crown-interiors-backend.onrender.com
+ 
+ POST /miniapp/signup — create user
 
-body 
+POST /miniapp/follow — follow user
+
+GET /miniapp/posts — view published posts
+
+POST /miniapp/like — like a post
+
+POST /miniapp/post — create post with schedule
+
+POST /miniapp/notify — simulate notification
+
+
+✅ 1. Signup
+POST /miniapp/signup
+
+
 {
-    "PASSWORD": "pasword entered initialy"
+  "username": "alice"
 }
+✅ 2. Follow
+POST /miniapp/follow
 
-to get all data 
-initialy on loading the website get this data and store it in localstorage do not fetch again and again for each page use it form localstorage 
-POST https://le-crown-interiors-backend.onrender.com/image/all
-response 
 
 {
-    "offers": [
-        {
-            "img": {
-                "public_id": "lecrowninteriors/hsrtfdyvbtp6lvkptsux",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063750/lecrowninteriors/hsrtfdyvbtp6lvkptsux.avif",
-                "dimentions": {
-                    "width": 369,
-                    "height": 553
-                }
-            },
-            "name": "z",
-            "title": "z",
-            "content": "z",
-            "description": "z"
-        },
-        {
-            "img": {
-                "public_id": "lecrowninteriors/zelf1fjtfx9greltub3y",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746063707/lecrowninteriors/zelf1fjtfx9greltub3y.avif",
-                "dimentions": {
-                    "width": 930,
-                    "height": 1316
-                }
-            },
-            "name": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w",
-            "title": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w",
-            "content": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w",
-            "description": "0jWYCPCRHpLQvXGSrNdyUab0jWYCPCRHprc7O5w"
-        },
-        {
-            "img": {
-                "public_id": "lecrowninteriors/x2dwiec2g48ugg0sdmmm",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746041229/lecrowninteriors/x2dwiec2g48ugg0sdmmm.avif",
-                "dimentions": {
-                    "width": 4480,
-                    "height": 2520
-                }
-            },
-            "name": "markethealers",
-            "title": "markethealers",
-            "content": "markethealers",
-            "description": "markethealers"
-        }
-    ],
-    "hero": [
-        {
-            "img": {
-                "public_id": "lecrowninteriors/jfqzmfj9xkb2wuoke3zy",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062516/lecrowninteriors/jfqzmfj9xkb2wuoke3zy.avif",
-                "dimentions": {
-                    "width": 1799,
-                    "height": 1200
-                }
-            },
-            "name": "Nithya Ganesh",
-            "title": "Nithya Ganesh",
-            "content": "Nithya Ganesh",
-            "description": "Nithya Ganesh"
-        },
-        {
-            "img": {
-                "public_id": "lecrowninteriors/iu5nczfvfhecjqytzmhn",
-                "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1746062475/lecrowninteriors/iu5nczfvfhecjqytzmhn.avif",
-                "dimentions": {
-                    "width": 1920,
-                    "height": 1102
-                }
-            },
-            "name": "Nithya Ganesh",
-            "title": "Nithya Ganesh",
-            "content": "Nithya Ganesh",
-            "description": "Nithya Ganesh"
-        }
-    ]
+  "me": "66406f48e177dd43f8228e35",
+  "other": "66406f64e177dd43f8228e39"
 }
+Replace me and other with actual user _ids returned from /signup.
+
+✅ 3. Create Post with Schedule
+POST /miniapp/post
 
 
-Request URL: https://le-crown-interiors-backend.onrender.com/image/upload
-Request Method: POST
-
-body 
 {
-    "PASSWORD": "pasword entered initialy"
-  "name": "name string",
-  "title": "title srting",
-  "content": "constent strig",
-  "description": "discription string",
-  "folderName": "offers any one must from the list",
-  "img": "(binary image file must be sent here as multipart/form-data in this name)"
+  "userId": "66406f48e177dd43f8228e35",
+  "caption": "My first scheduled post!",
+  "image": "https://example.com/image.jpg",
+  "time": "2025-05-12T15:00:00.000Z"
 }
+time must be in ISO format (new Date().toISOString() in JS). Must be a future time to test scheduler.
 
-response 
-ok or error 
+✅ 4. Get All Published Posts
+GET /miniapp/posts
+(No body)
+
+✅ 5. Like Post
+POST /miniapp/like
 
 
-
-Request URL: https://le-crown-interiors-backend.onrender.com/image/delete
-Request Method: DELETE
-body
 {
-    "PASSWORD": "pasword entered initialy",
-  "public_id": "lecrowninteriors/x2dwiec2g48ugg0sdmmm"
+  "postId": "66407220d4e911e90bfb3179",
+  "userId": "66406f48e177dd43f8228e35"
 }
-response ok or error
+✅ 6. Send Dummy Notification
+POST /miniapp/notify
+
+
+{
+  "userId": "66406f48e177dd43f8228e35",
+  "msg": "Your scheduled post is now live!"
+}
