@@ -66,35 +66,4 @@ router.post('/notify', async (req, res) => {
 });
 
 module.exports = router;
- 
-  (async () => { 
-    const u1 = await User.create({ username: 'AnbuLover' });
-    const u2 = await User.create({ username: 'ChennaiBae' });
-    const u3 = await User.create({ username: 'MasalaMoon' });
-    await Post.create(
-      {
-        user: u1._id,
-        caption: 'at the end it just me and moon',
-        image:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIlYS6yF8teCzyWIHJiH7_fr3pPa2T7e1GGg&s',
-        published: true,
-        publishAt: Date.now(),
-      },
-      {
-        user: u2._id,
-        caption: 'stay positive',
-        image:
-          'https://parade.com/.image/t_share/MTkwNTc2MDE1MzI1Mjc2MDI4/stay-positive-quotes-unknown-author.jpg',
-        published: true,
-        publishAt: Date.now(),
-      },
-      {
-        user: u3._id,
-        caption: 'apple in a table',
-        image:
-          'https://st2.depositphotos.com/1177973/7798/i/450/depositphotos_77982946-Red-apple-with-leaf-on-wooden-table-closeup.jpg',
-        published: true,
-        publishAt: Date.now(),
-      }
-    ); 
-  })(); 
+  
