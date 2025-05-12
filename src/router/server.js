@@ -5,6 +5,7 @@ const serverInit = express.Router();
 const cors = require('cors');
 
 const allowedOrigins = [
+  'https://moonogram.vercel.app',
   'https://admin.le-crowninteriors.com',
   'http://127.0.0.1:5500',
 ];
