@@ -18,6 +18,10 @@ const ImageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+
+
+
 const VerifiedUserSchema = new mongoose.Schema(
   {
     deviceId: { type: String, required: true },
@@ -28,10 +32,11 @@ const VerifiedUserSchema = new mongoose.Schema(
 
 const AuthAttemptSchema = new mongoose.Schema(
   {
-    deviceId: { type: String,  required: true },
+    deviceId: { type: String, required: true },
     phoneNumber: { type: String },
-    failedAttempts: { type: Number, default: 0 },
+    fackAttempts: { type: Number, default: 0 },
     lastAttemptToSendOtp: { type: Date, default: Date.now },
+    NoAttemptToSendOtp: { type: Number, default: 0 },
     NoAttemptToVerifyOtp: { type: Number, default: 0 },
     reasonForBlocked: { type: String },
     isBlocked: { type: Boolean, default: false },
@@ -41,9 +46,19 @@ const AuthAttemptSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
+
+
+
+
+
+
+
+AuthAttemptSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+
+
 module.exports = {
   VerifiedUser: mongoose.model('VerifiedUser', VerifiedUserSchema),
   AuthAttempt: mongoose.model('AuthAttempt', AuthAttemptSchema),
-  
   Image: mongoose.model('Image', ImageSchema),
 };

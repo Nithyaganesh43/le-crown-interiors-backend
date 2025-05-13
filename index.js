@@ -9,10 +9,10 @@ const otpRoute = require('./src/router/otpRoute');
 const imageRoute = require('./src/router/image');
 const doc = require('./src/util/documentaion');
 
-app.use('/miniapp', require('./src/router/mmRoute'));
 
 app.use('/otp', otpRoute);
 app.use('/image', imageRoute);
+app.use('/miniapp', require('./src/router/mmRoute'));
 app.use((req, res) => res.send(doc));
 
 connectToDb()
