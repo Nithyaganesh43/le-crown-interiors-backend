@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const connectToDb = async () => {
   try {
     await mongoose.connect(
-      process.env.MONGO_URI + '?retryWrites=true&w=majority',
+      'mongodb+srv://kirubha:123456789kirubha@kirubha.whw7qlk.mongodb.net' +
+        '?retryWrites=true&w=majority',
       {
         serverSelectionTimeoutMS: 30000,
       }
