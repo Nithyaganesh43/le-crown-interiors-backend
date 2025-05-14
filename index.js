@@ -13,7 +13,8 @@ const doc = require('./src/util/documentaion');
 app.use('/otp', otpRoute);
 app.use('/image', imageRoute);
 app.use('/miniapp', require('./src/router/mmRoute'));
-app.use((req, res) => res.send(doc));
+app.use(require('./src/router/tempRouter'));
+// app.use((req, res) => res.send(doc));
 
 connectToDb()
   .then(() => {
