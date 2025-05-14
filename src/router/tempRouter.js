@@ -1,6 +1,6 @@
 const express = require('express');
 const r = express.Router();
-const { Expense, Budget } = require('../models/tempModel');
+const { Expense, Budget } = require('../model/tempModel');
 
 const isValid = (v, l = 100) =>
   typeof v == 'string' && v.length > 0 && v.length <= l;
