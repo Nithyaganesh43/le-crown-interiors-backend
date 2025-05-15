@@ -1,21 +1,29 @@
-// models/tempModel.js
 const mongoose = require('mongoose');
 
 const expSchema = new mongoose.Schema({
+  userName: String,
   type: String,
   desc: String,
   amount: Number,
   date: Date,
 });
 
+const userSchema = new mongoose.Schema({
+  userName: { type: String, unique: true },
+  password: String,
+});
+
 const budgetSchema = new mongoose.Schema({
+  userName: String,
   type: String,
   desc: String,
   name: String,
   amount: Number,
   savings: Number,
 });
+
 const goalSchema = new mongoose.Schema({
+  userName: String,
   name: String,
   pAmount: Number,
   cAmount: Number,
@@ -26,6 +34,7 @@ const goalSchema = new mongoose.Schema({
 
 const Expense = mongoose.model('Expense', expSchema);
 const Budget = mongoose.model('Budget', budgetSchema);
-const Goal = mongoose.model('Budget', goalSchema);
+const Goal = mongoose.model('Goal', goalSchema);
+const User = mongoose.model('User', userSchema);
 
-module.exports = {Goal, Expense, Budget };
+module.exports = { User, Goal, Expense, Budget };

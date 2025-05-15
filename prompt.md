@@ -1,129 +1,110 @@
-✅ POST /add-expense
-URL:
-[https://le-crown-interiors-backend.onrender.com/add-expense]
-
-Headers:
-
-Content-Type: application/json
-Body (raw JSON):
-
+1. Add User
+Method: POST
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-user
+Body (JSON):
 {
-"type": "Office",
-"desc": "Chairs and desks purchase",
-"amount": 15000,
-"date": "2025-05-14"
+  "userName": "user-enter-user",
+  "password": "user-enter-pass"
 }
-Expected Response:
-ok
-
-✅ GET /expenses
-URL:
-[https://le-crown-interiors-backend.onrender.com/expenses]
-Method:
-GET
-Expected Response (example):
-[
+2. Add Expense
+Method: POST
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-expense
+Body (JSON):
 {
-"_id": "663c24ffca473ac72b1f63c5",
-"type": "Office",
-"desc": "Chairs and desks purchase",
-"amount": 15000,
-"date": "2025-05-14T00:00:00.000Z",
-"__v": 0
+  "userName": "user-enter-user",
+  "type": "Food",
+  "desc": "Dinner at restaurant",
+  "amount": 500,
+  "date": "2024-05-01"
 }
-]
-
-✅ POST /add-budget
-URL:
-[https://le-crown-interiors-backend.onrender.com/add-budget]
-Headers:
-Content-Type: application/json
-Body (raw JSON):
+3. Get Expenses
+Method: GET
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/expenses
+Body (JSON):
 {
-"type": "Monthly",
-"name": "May Budget",
-"desc": "Operating budget for May",
-"amount": 50000,
-"savings": 5000
+  "userName": "user-enter-user"
 }
-Expected Response:
-
-
-ok
-✅ GET /budgets
-URL:
-[https://le-crown-interiors-backend.onrender.com/budgets]
-Method:
-GET
-Expected Response (example):
-[
+4. Add Budget
+Method: POST
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-budget
+Body (JSON):
 {
-"_id": "663c252aca473ac72b1f63c6",
-"type": "Monthly",
-"name": "May Budget",
-"desc": "Operating budget for May",
-"amount": 50000,
-"savings": 5000,
-"__v": 0
+  "userName": "user-enter-user",
+  "type": "Monthly",
+  "name": "May Budget",
+  "desc": "Budget for May",
+  "amount": 10000,
+  "savings": 2000
 }
-]
+5. Get Budgets
+Method: GET
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/budgets
+Body (JSON):
+{
+  "userName": "user-enter-user"
+}
+6. Add Goal
+Method: POST
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-goal
+Body (JSON):
+{
+  "userName": "user-enter-user",
+  "name": "New Laptop",
+  "pAmount": 50000,
+  "cAmount": 10000,
+  "deadLine": "2024-12-31",
+  "type": "Tech",
+  "desc": "Saving for a new laptop"
+}
+7. Add Amount to Goal
+Method: POST
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-amount-goal
+Body (JSON):
+{
+  "id": "<insert-goal-_id-here>",
+  "amount": 5000
+}
+Replace <insert-goal-_id-here> with the actual _id returned from the /get-goal response.
 
 
+8. Get Goals
+Method: GET
+URL:https://le-crown-interiors-backend.onrender.com/add-expense/get-goal
+Body (JSON):
+{
+  "userName": "user-enter-user"
+}
 
-Src code:
 
-const isValid = (v, l = 100) =>
-  typeof v == 'string' && v.length > 0 && v.length <= l;
-
-r.post('/add-expense', async (req, res) => {
-  let { type, desc, amount, date } = req.body;
-  if (
-    !isValid(type, 30) ||
-    !isValid(desc, 100) ||
-    isNaN(amount) ||
-    !Date.parse(date)
-  )
-    return res.status(400).send('invalid');
-  await new Expense({ type, desc, amount, date }).save();
-  res.send('ok');
-});
-
-r.get('/expenses', async (req, res) => {
-  const data = await Expense.find();
-  res.json(data);
-});
-
-r.post('/add-budget', async (req, res) => {
-  let { type, name, desc, amount, savings } = req.body;
-  if (
-    !isValid(type, 30) ||
-    !isValid(name, 50) ||
-    !isValid(desc, 100) ||
-    isNaN(amount) ||
-    isNaN(savings)
-  )
-    return res.status(400).send('invalid');
-  await new Budget({ type, name, desc, amount, savings }).save();
-  res.send('ok');
-});
-
-r.get('/budgets', async (req, res) => {
-  const data = await Budget.find();
-  res.json(data);
-});
-
-model:
+databse 
 const expSchema = new mongoose.Schema({
+  userName: String,
   type: String,
   desc: String,
   amount: Number,
   date: Date,
 });
 
+const userSchema = new mongoose.Schema({
+  userName: { type: String, unique: true },
+  password: String,
+});
+
 const budgetSchema = new mongoose.Schema({
+  userName: String,
   type: String,
   desc: String,
   name: String,
   amount: Number,
   savings: Number,
+});
+
+const goalSchema = new mongoose.Schema({
+  userName: String,
+  name: String,
+  pAmount: Number,
+  cAmount: Number,
+  deadLine: Date,
+  type: String,
+  desc: String,
 });
