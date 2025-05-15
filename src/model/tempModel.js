@@ -32,9 +32,9 @@ const goalSchema = new mongoose.Schema({
   desc: String,
 });
 
-const Expense = mongoose.model('Expense', expSchema);
-const Budget = mongoose.model('Budget', budgetSchema);
-const Goal = mongoose.model('Goal', goalSchema);
-const User = mongoose.model('User', userSchema);
+const Expense = mongoose.model('Eexpense', expSchema);
+const Budget = mongoose.model('Bbudget', budgetSchema);
+const Goal = mongoose.model('Ggsoal', goalSchema);
+const User = mongoose.model('Uuser', userSchema);
 
 module.exports = { User, Goal, Expense, Budget };
