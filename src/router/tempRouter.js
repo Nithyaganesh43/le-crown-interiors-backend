@@ -29,7 +29,7 @@ r.post('/add-expense', async (req, res) => {
   res.send('ok');
 });
 
-r.get('/expenses', async (req, res) => {
+r.post('/expenses', async (req, res) => {
   let { userName } = req.body;
   const data = await Expense.find({ userName });
   res.json(data);
@@ -51,7 +51,7 @@ r.post('/add-budget', async (req, res) => {
   res.send('ok');
 });
 
-r.get('/budgets', async (req, res) => {
+r.post('/budgets', async (req, res) => {
   let { userName } = req.body;
   const data = await Budget.find({ userName });
   res.json(data);
@@ -94,7 +94,7 @@ r.post('/add-amount-goal', async (req, res) => {
   res.json(g);
 });
 
-r.get('/get-goal', async (req, res) => {
+r.post('/get-goal', async (req, res) => {
   let { userName } = req.body;
   const data = await Goal.find({ userName });
   res.json(data);

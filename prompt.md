@@ -1,110 +1,73 @@
-1. Add User
-Method: POST
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-user
-Body (JSON):
+ 1. Add User
+POST https://le-crown-interiors-backend.onrender.com/add-user
+Body:
 {
-  "userName": "user-enter-user",
-  "password": "user-enter-pass"
+  "userName": "userName",
+  "password": "pass123"
 }
+
 2. Add Expense
-Method: POST
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-expense
-Body (JSON):
+POST https://le-crown-interiors-backend.onrender.com/add-expense
+Body:
 {
-  "userName": "user-enter-user",
-  "type": "Food",
-  "desc": "Dinner at restaurant",
-  "amount": 500,
-  "date": "2024-05-01"
+  "userName": "userName",
+  "type": "Transport",
+  "desc": "Auto fare",
+  "amount": 120,
+  "date": "2025-05-01"
 }
+
 3. Get Expenses
-Method: GET
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/expenses
-Body (JSON):
+GET https://le-crown-interiors-backend.onrender.com/expenses
+Body:
 {
-  "userName": "user-enter-user"
+  "userName": "userName"
 }
+
 4. Add Budget
-Method: POST
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-budget
-Body (JSON):
+POST https://le-crown-interiors-backend.onrender.com/add-budget
+Body:
 {
-  "userName": "user-enter-user",
+  "userName": "userName",
   "type": "Monthly",
-  "name": "May Budget",
-  "desc": "Budget for May",
-  "amount": 10000,
-  "savings": 2000
+  "name": "June Budget",
+  "desc": "Monthly planning",
+  "amount": 15000,
+  "savings": 3000
 }
 5. Get Budgets
-Method: GET
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/budgets
-Body (JSON):
+GET https://le-crown-interiors-backend.onrender.com/budgets
+Body:
 {
-  "userName": "user-enter-user"
+  "userName": "userName"
 }
-6. Add Goal
-Method: POST
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-goal
-Body (JSON):
-{
-  "userName": "user-enter-user",
-  "name": "New Laptop",
-  "pAmount": 50000,
-  "cAmount": 10000,
-  "deadLine": "2024-12-31",
-  "type": "Tech",
-  "desc": "Saving for a new laptop"
-}
-7. Add Amount to Goal
-Method: POST
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/add-amount-goal
-Body (JSON):
-{
-  "id": "<insert-goal-_id-here>",
-  "amount": 5000
-}
-Replace <insert-goal-_id-here> with the actual _id returned from the /get-goal response.
 
+6. Add Goal
+POST https://le-crown-interiors-backend.onrender.com/add-goal
+Body:
+{
+  "userName": "userName",
+  "name": "Buy Phone",
+  "pAmount": 40000,
+  "cAmount": 5000,
+  "deadLine": "2025-12-31",
+  "type": "Electronics",
+  "desc": "New iPhone"
+}
+
+7. Add Amount to Goal
+POST https://le-crown-interiors-backend.onrender.com/add-amount-goal
+Body:
+{
+  "id": "<insert-goal-id>",
+  "amount": 2500
+}
+Replace <insert-goal-id> with actual _id from the /get-goal API response.
 
 8. Get Goals
-Method: GET
-URL:https://le-crown-interiors-backend.onrender.com/add-expense/get-goal
-Body (JSON):
+GET https://le-crown-interiors-backend.onrender.com/get-goal
+Body:
 {
-  "userName": "user-enter-user"
+  "userName": "userName"
 }
-
-
-databse 
-const expSchema = new mongoose.Schema({
-  userName: String,
-  type: String,
-  desc: String,
-  amount: Number,
-  date: Date,
-});
-
-const userSchema = new mongoose.Schema({
-  userName: { type: String, unique: true },
-  password: String,
-});
-
-const budgetSchema = new mongoose.Schema({
-  userName: String,
-  type: String,
-  desc: String,
-  name: String,
-  amount: Number,
-  savings: Number,
-});
-
-const goalSchema = new mongoose.Schema({
-  userName: String,
-  name: String,
-  pAmount: Number,
-  cAmount: Number,
-  deadLine: Date,
-  type: String,
-  desc: String,
-});
+Use Content-Type: application/json header for all.
