@@ -126,3 +126,9 @@ r.post('/respondrequests', async (req, res) => {
 
 
 module.exports = r;
+
+
+(async ()=>{
+ await User.deleteMany({})
+ await rentRequest.deleteMany({}); 
+})()
