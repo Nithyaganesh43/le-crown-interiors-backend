@@ -21,34 +21,23 @@ r.post('/add-user', async (req, res) => {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
-
 r.post('/rentrequest', async (req, res) => {
   try {
-    let {
-      phonenumber,
-      name,
-      title,
-      content,
-      description,
-      img: {
-        public_id,
-        url,
-        dimensions: { width, height },
-      },
-    } = req.body;
+    console.log('Incoming Payload:', JSON.stringify(req.body));
+    let { phonenumber, name, title, content, description, img } = req.body;
     let d = await rentRequest.create({
       phonenumber,
       name,
       title,
       content,
       description,
-      img: { public_id, url, dimensions: { width, height } },
+      img,
     });
-    let { _id, status, img } = d;
+    let { _id, status } = d;
     let {
-      public_id: pid,
-      url: imgUrl,
-      dimensions: { width: w, height: h },
+      public_id,
+      url,
+      dimensions: { width, height },
     } = img;
     res.json({
       _id,
@@ -58,12 +47,14 @@ r.post('/rentrequest', async (req, res) => {
       content,
       description,
       status,
-      img: { public_id: pid, url: imgUrl, dimensions: { width: w, height: h } },
+      img: { public_id, url, dimensions: { width, height } },
     });
   } catch (e) {
+    console.log('Error:', e);
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
+    
 
 r.post('/trackrequest', async (req, res) => {
   try {
