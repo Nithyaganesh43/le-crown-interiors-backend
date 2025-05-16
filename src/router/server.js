@@ -7,7 +7,7 @@ const cors = require('cors');
 const allowedOrigins = [
   'https://moonogram.vercel.app',
   'https://admin.le-crowninteriors.com',
-  'http://127.0.0.1:5500',
+  'http://127.0.0.1:5500','https://melodious-starlight-b3ce06.netlify.app',
   'http://localhost:3000',
 ];
 
