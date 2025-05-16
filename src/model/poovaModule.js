@@ -8,21 +8,22 @@ const userSchema = new mongoose.Schema({
 const rentRequestSchema = new mongoose.Schema({
   phonenumber: String,
   img: {
-    public_id: { type: String },
-    url: { type: String },
+    public_id: String,
+    url: String,
     dimensions: {
-      width: { type: Number },
-      height: { type: Number },
+      width: Number,
+      height: Number,
     },
   },
-  name: { type: String },
-  title: { type: String },
-  content: { type: String },
-  description: { type: String },
-  status: {type: String , default:"pending"} 
+  name: String,
+  title: String,
+  content: String,
+  description: String,
+  status: { type: String, default: 'pending' },
 });
+
+const rentRequest = mongoose.model('PrentRequest', rentRequestSchema);
  
 const User = mongoose.model('Puser', userSchema);
-const rentRequest = mongoose.model('PrentRequest', rentRequestSchema);
 
 module.exports = { User, rentRequest };

@@ -65,6 +65,26 @@ Test Case	Input	Expected Output
 ✅ Requests exist	{}	Array of request objects
 ✅ No requests in DB	{}	[]
 ❌ Invalid body	Raw text	Still works or ignored body
+response [
+  {
+    "_id": "6645f792a542e94c12345678",
+    "phonenumber": "9042421622",
+    "img": {
+      "public_id": "lecrowninteriors/qhi0lfrsd6nfevspb1q4",
+      "url": "http://res.cloudinary.com/dflgxymvs/image/upload/v1747374740/lecrowninteriors/qhi0lfrsd6nfevspb1q4.avif",
+      "dimensions": {
+        "width": 337,
+        "height": 149
+      }
+    },
+    "name": "Nithya Ganesh",
+    "title": "title",
+    "content": "some sontent",
+    "description": "wdetailed discription",
+    "status": "pending",
+    "__v": 0
+  }
+]
 
 🔹 5. POST /respondrequests
 Valid body:
