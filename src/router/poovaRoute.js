@@ -1,6 +1,6 @@
 const express = require('express');
 const r = express.Router();
-const { User, rentRequest } = require('../model/tempModel');
+const { User, rentRequest } = require('../model/poovaModule');
 
 r.post('/add-user', async (req, res) => {
   try {
