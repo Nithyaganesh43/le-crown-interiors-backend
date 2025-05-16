@@ -23,6 +23,6 @@ const rentRequestSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('Useraa', userSchema);
-const rentRequest = mongoose.model('rentRequestaa', rentRequestSchema);
+const rentRequest = mongoose.model('rentRequestaaa', rentRequestSchema);
 
 module.exports = { User, rentRequest };

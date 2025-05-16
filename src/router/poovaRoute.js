@@ -8,8 +8,10 @@ r.post('/add-user', async (req, res) => {
     let u = await User.findOne({ phonenumber });
     if (!u) {
       u = await User.create(req.body);
-      let { _id, phonenumber, password } = u;
-      return res.json({ msg: 'created', user: { _id, phonenumber, password } });
+      return res.json({
+        msg: 'created',
+        user: { _id: u._id, phonenumber: u.phonenumber, password: u.password },
+      });
     }
     if (u.password === password)
       return res.json({
@@ -21,11 +23,11 @@ r.post('/add-user', async (req, res) => {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
+
 r.post('/rentrequest', async (req, res) => {
   try {
-    console.log('Incoming Payload:', JSON.stringify(req.body));
     let { phonenumber, name, title, content, description, img } = req.body;
-    let data = new rentRequest({
+    let d = await rentRequest.create({
       phonenumber,
       name,
       title,
@@ -33,7 +35,6 @@ r.post('/rentrequest', async (req, res) => {
       description,
       img,
     });
-    let d = await data.save();
     let { _id, status } = d;
     let {
       public_id,
@@ -51,12 +52,9 @@ r.post('/rentrequest', async (req, res) => {
       img: { public_id, url, dimensions: { width, height } },
     });
   } catch (e) {
-    console.log('Error:', e);
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
-  
-    
 
 r.post('/trackrequest', async (req, res) => {
   try {
@@ -111,32 +109,5 @@ r.post('/getrequests', async (req, res) => {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
-r.post('/rentrequest', async (req, res) => {
-  try {
-    let { phonenumber, name, title, content, description, img } = req.body;
-    let d = await rentRequest.create({
-      phonenumber,
-      name,
-      title,
-      content,
-      description,
-      img,
-    });
-    let { _id, status } = d;
-    res.json({
-      _id,
-      phonenumber,
-      name,
-      title,
-      content,
-      description,
-      status,
-      img,
-    });
-  } catch (e) {
-    res.status(500).json({ msg: 'error', error: e.message });
-  }
-});
-    
 
 module.exports = r;
