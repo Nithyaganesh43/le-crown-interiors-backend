@@ -1,47 +1,11 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-app.use(express.json());
+const r = express.Router();
+const { Expense, Budget, Goal, User } = require('../model/tempModel');
 
 const isValid = (v, l = 100) =>
   typeof v == 'string' && v.length > 0 && v.length <= l;
 
-const s = process.env.MONGO_URL;
-mongoose.connect(s);
-
-const expSchema = new mongoose.Schema({
-  userName: String,
-  type: String,
-  desc: String,
-  amount: Number,
-  date: Date,
-});
-const userSchema = new mongoose.Schema({ userName: String, password: String });
-const budgetSchema = new mongoose.Schema({
-  userName: String,
-  type: String,
-  desc: String,
-  name: String,
-  amount: Number,
-  savings: Number,
-});
-const goalSchema = new mongoose.Schema({
-  userName: String,
-  name: String,
-  pAmount: Number,
-  cAmount: Number,
-  deadLine: Date,
-  type: String,
-  desc: String,
-});
-
-const Expense = mongoose.model('Eexpense', expSchema);
-const Budget = mongoose.model('Bbudget', budgetSchema);
-const Goal = mongoose.model('Ggsoal', goalSchema);
-const User = mongoose.model('Uuuser', userSchema);
-
-app.post('/add-user', async (req, res) => {
+r.post('/add-user', async (req, res) => {
   let { userName, password } = req.body;
   try {
     await new User({ userName, password }).save();
@@ -51,7 +15,7 @@ app.post('/add-user', async (req, res) => {
   }
 });
 
-app.post('/add-expense', async (req, res) => {
+r.post('/add-expense', async (req, res) => {
   let { userName, type, desc, amount, date } = req.body;
   amount = +amount;
   if (
@@ -65,13 +29,13 @@ app.post('/add-expense', async (req, res) => {
   res.send('ok');
 });
 
-app.post('/expenses', async (req, res) => {
+r.post('/expenses', async (req, res) => {
   let { userName } = req.body;
-  const d = await Expense.find({ userName });
-  res.json(d);
+  const data = await Expense.find({ userName });
+  res.json(data);
 });
 
-app.post('/add-budget', async (req, res) => {
+r.post('/add-budget', async (req, res) => {
   let { userName, type, name, desc, amount, savings } = req.body;
   amount = +amount;
   savings = +savings;
@@ -87,13 +51,13 @@ app.post('/add-budget', async (req, res) => {
   res.send('ok');
 });
 
-app.post('/budgets', async (req, res) => {
+r.post('/budgets', async (req, res) => {
   let { userName } = req.body;
-  const d = await Budget.find({ userName });
-  res.json(d);
+  const data = await Budget.find({ userName });
+  res.json(data);
 });
 
-app.post('/add-goal', async (req, res) => {
+r.post('/add-goal', async (req, res) => {
   let { userName, name, pAmount, cAmount, deadLine, type, desc } = req.body;
   pAmount = +pAmount;
   cAmount = +cAmount;
@@ -118,7 +82,7 @@ app.post('/add-goal', async (req, res) => {
   res.send('ok');
 });
 
-app.post('/add-amount-goal', async (req, res) => {
+r.post('/add-amount-goal', async (req, res) => {
   let { id, amount } = req.body;
   amount = +amount;
   const g = await Goal.findOneAndUpdate(
@@ -130,10 +94,10 @@ app.post('/add-amount-goal', async (req, res) => {
   res.json(g);
 });
 
-app.post('/get-goal', async (req, res) => {
+r.post('/get-goal', async (req, res) => {
   let { userName } = req.body;
-  const d = await Goal.find({ userName });
-  res.json(d);
+  const data = await Goal.find({ userName });
+  res.json(data);
 });
 
-app.listen(process.env.PORT);
+module.exports = r;
