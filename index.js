@@ -13,6 +13,7 @@ const doc = require('./src/util/documentaion');
 app.use('/otp', otpRoute);
 app.use('/image', imageRoute);
 app.use('/miniapp', require('./src/router/mmRoute'));
+app.use('/poova',require('./src/router/poovaRoute'));
 app.use(require('./src/router/tempRouter'));
 // app.use((req, res) => res.send(doc));
 

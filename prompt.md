@@ -1,204 +1,81 @@
-Base URL:
-https://le-crown-interiors-backend.onrender.com
+✅ Base URL
+https://le-crown-interiors-backend.onrender.com/poova
 
-1. Add User
-Method: POST
+🔹 1. POST /add-user
+Valid body:
 
-URL: /add-user
+{ "phonenumber": "9999999999", "password": "abc123" }
+✅ Test Cases
+Test Case	Input	Expected Output
+✅ Create new user	Valid phonenumber, password	{ msg: "created", user: {...} }
+✅ Login existing user, correct password	Same phonenumber and password	{ msg: "ok" }
+❌ Login existing user, wrong password	Same phonenumber, wrong password	{ msg: "wrong password" }
+❌ Missing password	{ "phonenumber": "9999999999" }	500, error message
+❌ Missing phonenumber	{ "password": "abc123" }	500, error message
+❌ Empty body	{}	500, error message
+❌ Invalid JSON	Raw text "phonenumber:999"	500, error parsing JSON
 
-Headers: Content-Type: application/json
-
-Body:
-
-
-{ "userName": "john", "password": "abc123" }
-Success (200):
-Type: text/plain
-Example: "ok"
-
-Error (400):
-Type: text/plain
-Example: "E11000 duplicate key error collection:..."
-
-2. Add Expense
-Method: POST
-
-URL: /add-expense
-
-Headers: Content-Type: application/json
-
-Body:
-
+🔹 2. POST /rentrequest
+Valid body:
 
 {
-  "userName": "john",
-  "type": "Food",
-  "desc": "Dinner",
-  "amount": 250,
-  "date": "2025-05-01"
+  "phonenumber": "9999999999",
+  "img": {
+    "public_id": "abc123",
+    "url": "https://example.com/img.jpg",
+    "dimensions": {
+      "width": 800,
+      "height": 600
+    }
+  },
+  "name": "John",
+  "title": "Need Interior Work",
+  "content": "Full home renovation",
+  "description": "Detailed description here"
 }
-Success (200): "ok"
+✅ Test Cases
+Test Case	Input Changes	Expected Output
+✅ Valid request	All fields present	Document with _id, status:pending
+❌ Missing optional img	Remove img	Still creates, defaults work
+❌ Missing required name	Remove name	500, error message
+❌ Invalid dimensions	"dimensions": "800x600"	500, error message
+❌ Invalid data types	"width": "wide"	500, error
+❌ Extra unknown fields	Add "extra": "xyz"	Should ignore or save if schema open
+❌ Empty body	{}	500, error
 
-Error (400): "invalid"
+🔹 3. POST /trackrequest
+Valid body:
 
-3. Get Expenses
-Method: POST
+{ "_id": "<valid-object-id>" }
+✅ Test Cases
+Test Case	Input	Expected Output
+✅ Valid existing ID	Correct _id	Request object
+❌ Non-existing ID	Valid format but not in DB	{ msg: "not found" }
+❌ Invalid ObjectId	{ "_id": "123" }	500, cast error
+❌ Missing _id	{}	500, error
+❌ Empty string _id	{ "_id": "" }	500, cast error
 
-URL: /expenses
+🔹 4. POST /getrequests
+Body: {} or none
 
-Headers: Content-Type: application/json
+✅ Test Cases
+Test Case	Input	Expected Output
+✅ Requests exist	{}	Array of request objects
+✅ No requests in DB	{}	[]
+❌ Invalid body	Raw text	Still works or ignored body
 
-Body:
-
-
-{ "userName": "john" }
-Success (200):
-Type: application/json
-Example:
-
-
-[
-  {
-    "_id": "663ab9...",
-    "userName": "john",
-    "type": "Food",
-    "desc": "Dinner",
-    "amount": 250,
-    "date": "2025-05-01T00:00:00.000Z",
-    "__v": 0
-  }
-]
-4. Add Budget
-Method: POST
-
-URL: /add-budget
-
-Headers: Content-Type: application/json
-
-Body:
-
+🔹 5. POST /respondrequests
+Valid body:
 
 {
-  "userName": "john",
-  "type": "Monthly",
-  "name": "Home Budget",
-  "desc": "April expenses",
-  "amount": 10000,
-  "savings": 2000
+  "_id": "<valid-object-id>",
+  "response": "approved"
 }
-Success (200): "ok"
-
-Error (400): "invalid"
-
-5. Get Budgets
-Method: POST
-
-URL: /budgets
-
-Headers: Content-Type: application/json
-
-Body:
-
-
-{ "userName": "john" }
-Success (200):
-Type: application/json
-Example:
-
-
-[
-  {
-    "_id": "663abc...",
-    "userName": "john",
-    "type": "Monthly",
-    "name": "Home Budget",
-    "desc": "April expenses",
-    "amount": 10000,
-    "savings": 2000,
-    "__v": 0
-  }
-]
-6. Add Goal
-Method: POST
-
-URL: /add-goal
-
-Headers: Content-Type: application/json
-
-Body:
-
-
-{
-  "userName": "john",
-  "name": "New Phone",
-  "pAmount": 50000,
-  "cAmount": 15000,
-  "deadLine": "2025-12-01",
-  "type": "Personal",
-  "desc": "Buy iPhone"
-}
-Success (200): "ok"
-
-Error (400): "invalid"
-
-7. Add Amount to Goal
-Method: POST
-
-URL: /add-amount-goal
-
-Headers: Content-Type: application/json
-
-Body:
-
-
-{
-  "id": "663ade...",
-  "amount": 5000
-}
-Success (200):
-Type: application/json
-Example:
-
-
-{
-  "_id": "663ade...",
-  "userName": "john",
-  "name": "New Phone",
-  "pAmount": 50000,
-  "cAmount": 20000,
-  "deadLine": "2025-12-01T00:00:00.000Z",
-  "type": "Personal",
-  "desc": "Buy iPhone",
-  "__v": 0
-}
-Error (404): "not found"
-
-8. Get Goals
-Method: POST
-
-URL: /get-goal
-
-Headers: Content-Type: application/json
-
-Body:
-
-
-{ "userName": "john" }
-Success (200):
-Type: application/json
-Example:
-
-
-[
-  {
-    "_id": "663ade...",
-    "userName": "john",
-    "name": "New Phone",
-    "pAmount": 50000,
-    "cAmount": 20000,
-    "deadLine": "2025-12-01T00:00:00.000Z",
-    "type": "Personal",
-    "desc": "Buy iPhone",
-    "__v": 0
-  }
-]
+✅ Test Cases
+Test Case	Input	Expected Output
+✅ Valid update	Existing _id, valid response	Updated request object
+❌ Non-existing _id	Valid format but not in DB	{ msg: "not found" }
+❌ Invalid _id format	_id = "123"	500, cast error
+❌ Missing _id	{ "response": "approved" }	500, error
+❌ Missing response	{ "_id": "<valid-id>" }	500, error
+❌ Invalid response value	response = 12345	Accepts unless enum enforced
