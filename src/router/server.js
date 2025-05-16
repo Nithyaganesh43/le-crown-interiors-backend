@@ -12,6 +12,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://adminusnest.vercel.app',
   'https://adminofusnest.vercel.app',
+  
 ];
 
 serverInit.use(
