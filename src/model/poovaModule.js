@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   password: String,
 });
 
+
 const rentRequestSchema = new mongoose.Schema({
   phonenumber: String,
   img: {

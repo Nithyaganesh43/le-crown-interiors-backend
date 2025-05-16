@@ -16,9 +16,35 @@ r.post('/add-user', async (req, res) => {
   }
 });
 
+
 r.post('/rentrequest', async (req, res) => {
   try {
-    const data = await rentRequest.create(req.body);
+    const {
+      phonenumber,
+      name,
+      title,
+      content,
+      description,
+      img: {
+        public_id,
+        url,
+        dimensions: { width, height },
+      },
+    } = req.body;
+
+    const data = await rentRequest.create({
+      phonenumber,
+      name,
+      title,
+      content,
+      description,
+      img: {
+        public_id,
+        url,
+        dimensions: { width, height },
+      },
+    });
+
     res.json(data);
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
