@@ -25,7 +25,7 @@ r.post('/rentrequest', async (req, res) => {
   try {
     console.log('Incoming Payload:', JSON.stringify(req.body));
     let { phonenumber, name, title, content, description, img } = req.body;
-    let d = await rentRequest.create({
+    let data = new rentRequest({
       phonenumber,
       name,
       title,
@@ -33,6 +33,7 @@ r.post('/rentrequest', async (req, res) => {
       description,
       img,
     });
+    let d = await data.save();
     let { _id, status } = d;
     let {
       public_id,
@@ -54,6 +55,7 @@ r.post('/rentrequest', async (req, res) => {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
+  
     
 
 r.post('/trackrequest', async (req, res) => {
