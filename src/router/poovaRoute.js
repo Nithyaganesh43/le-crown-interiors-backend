@@ -4,6 +4,7 @@ const { User, rentRequest } = require('../model/poovaModule');
 
 r.post('/add-user', async (req, res) => {
   try {
+    
     let { phonenumber, password } = req.body;
     let u = await User.findOne({ phonenumber });
     if (!u) {
