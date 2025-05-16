@@ -118,22 +118,18 @@ r.post('/getrequests', async (req, res) => {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
-
-r.post('/respondrequests', async (req, res) => {
+r.post('/rentrequest', async (req, res) => {
   try {
-    let { _id, response } = req.body;
-    let d = await rentRequest.findByIdAndUpdate(
-      _id,
-      { status: response },
-      { new: true }
-    );
-    if (!d) return res.status(404).json({ msg: 'not found' });
-    let { phonenumber, name, title, content, description, status, img } = d;
-    let {
-      public_id,
-      url,
-      dimensions: { width, height },
-    } = img;
+    let { phonenumber, name, title, content, description, img } = req.body;
+    let d = await rentRequest.create({
+      phonenumber,
+      name,
+      title,
+      content,
+      description,
+      img,
+    });
+    let { _id, status } = d;
     res.json({
       _id,
       phonenumber,
@@ -142,11 +138,12 @@ r.post('/respondrequests', async (req, res) => {
       content,
       description,
       status,
-      img: { public_id, url, dimensions: { width, height } },
+      img,
     });
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
+    
 
 module.exports = r;
