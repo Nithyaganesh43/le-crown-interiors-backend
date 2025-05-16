@@ -9,7 +9,7 @@ const expSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-  userName: { type: String, unique: true },
+  userName: String ,
   password: String,
 });
 
@@ -35,6 +35,6 @@ const goalSchema = new mongoose.Schema({
 const Expense = mongoose.model('Eexpense', expSchema);
 const Budget = mongoose.model('Bbudget', budgetSchema);
 const Goal = mongoose.model('Ggsoal', goalSchema);
-const User = mongoose.model('Uuser', userSchema);
+const User = mongoose.model('Uuuser', userSchema);
 
 module.exports = { User, Goal, Expense, Budget };
