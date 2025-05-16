@@ -82,7 +82,7 @@ r.post('/trackrequest', async (req, res) => {
   }
 });
 
-r.post('/getrequests', async (req, res) => {
+r.post('/requests', async (req, res) => {
   try {
     let arr = await rentRequest.find({});
     let d = arr.map((x) => {
@@ -109,5 +109,20 @@ r.post('/getrequests', async (req, res) => {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
+
+r.post('/respondrequests', async (req, res) => {
+  const { requestId ,response } = req.body;
+  try {
+    let request = await rentRequest.findByIdAndUpdate(
+      requestId,
+      { status: response },
+      { new: true }  
+    );
+    res.json(request);
+  } catch (e) {
+    res.status(500).json({ msg: 'error', error: e.message });
+  }
+});
+
 
 module.exports = r;
