@@ -4,22 +4,27 @@ const { User, rentRequest } = require('../model/tempModel');
 
 r.post('/add-user', async (req, res) => {
   try {
-    let u = await User.findOne({ phonenumber: req.body.phonenumber });
+    let { phonenumber, password } = req.body;
+    let u = await User.findOne({ phonenumber });
     if (!u) {
       u = await User.create(req.body);
-      return res.json({ msg: 'created', user: u });
+      let { _id, phonenumber, password } = u;
+      return res.json({ msg: 'created', user: { _id, phonenumber, password } });
     }
-    if (u.password === req.body.password) return res.json({ msg: 'ok' });
+    if (u.password === password)
+      return res.json({
+        msg: 'ok',
+        user: { _id: u._id, phonenumber: u.phonenumber, password: u.password },
+      });
     res.json({ msg: 'wrong password' });
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
 
-
 r.post('/rentrequest', async (req, res) => {
   try {
-    const {
+    let {
       phonenumber,
       name,
       title,
@@ -31,32 +36,56 @@ r.post('/rentrequest', async (req, res) => {
         dimensions: { width, height },
       },
     } = req.body;
-
-    const data = await rentRequest.create({
+    let d = await rentRequest.create({
       phonenumber,
       name,
       title,
       content,
       description,
-      img: {
-        public_id,
-        url,
-        dimensions: { width, height },
-      },
+      img: { public_id, url, dimensions: { width, height } },
     });
-
-    res.json(data);
+    let { _id, status, img } = d;
+    let {
+      public_id: pid,
+      url: imgUrl,
+      dimensions: { width: w, height: h },
+    } = img;
+    res.json({
+      _id,
+      phonenumber,
+      name,
+      title,
+      content,
+      description,
+      status,
+      img: { public_id: pid, url: imgUrl, dimensions: { width: w, height: h } },
+    });
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
-  
 
 r.post('/trackrequest', async (req, res) => {
   try {
-    const data = await rentRequest.findById(req.body._id);
-    if (!data) return res.status(404).json({ msg: 'not found' });
-    res.json(data);
+    let { _id } = req.body;
+    let d = await rentRequest.findById(_id);
+    if (!d) return res.status(404).json({ msg: 'not found' });
+    let { phonenumber, name, title, content, description, status, img } = d;
+    let {
+      public_id,
+      url,
+      dimensions: { width, height },
+    } = img;
+    res.json({
+      _id,
+      phonenumber,
+      name,
+      title,
+      content,
+      description,
+      status,
+      img: { public_id, url, dimensions: { width, height } },
+    });
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
   }
@@ -64,28 +93,60 @@ r.post('/trackrequest', async (req, res) => {
 
 r.post('/getrequests', async (req, res) => {
   try {
-    const data = await rentRequest.find({});
-    res.json(data);
+    let arr = await rentRequest.find({});
+    let d = arr.map((x) => {
+      let { _id, phonenumber, name, title, content, description, status, img } =
+        x;
+      let {
+        public_id,
+        url,
+        dimensions: { width, height },
+      } = img;
+      return {
+        _id,
+        phonenumber,
+        name,
+        title,
+        content,
+        description,
+        status,
+        img: { public_id, url, dimensions: { width, height } },
+      };
+    });
+    res.json(d);
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
 
-
 r.post('/respondrequests', async (req, res) => {
   try {
-    const data = await rentRequest.findByIdAndUpdate(
-      req.body._id,
-      { status: req.body.response },
+    let { _id, response } = req.body;
+    let d = await rentRequest.findByIdAndUpdate(
+      _id,
+      { status: response },
       { new: true }
     );
-    if (!data) return res.status(404).json({ msg: 'not found' });
-    res.json(data);
+    if (!d) return res.status(404).json({ msg: 'not found' });
+    let { phonenumber, name, title, content, description, status, img } = d;
+    let {
+      public_id,
+      url,
+      dimensions: { width, height },
+    } = img;
+    res.json({
+      _id,
+      phonenumber,
+      name,
+      title,
+      content,
+      description,
+      status,
+      img: { public_id, url, dimensions: { width, height } },
+    });
   } catch (e) {
     res.status(500).json({ msg: 'error', error: e.message });
   }
 });
 
 module.exports = r;
-
- 
