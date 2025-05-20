@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const fireWall = require('../middleware/fireWall');
-const { sendOtp, verifyOtp } = require('../util/otpHelper');
+const { sendOtp, verifyOtp, OTP_EXPIRY_TIME } = require('../util/otpHelper');
 const { VerifiedUser, AuthAttempt } = require('../model/Model');
-const { OTP_EXPIRY_TIME } = require('../util/otpHelper');
 
 router.get('/deleteall', async (req, res) => {
   try {
-    await VerifiedUser.deleteMany({});
-    await AuthAttempt.deleteMany({});
+    await Promise.all([
+      VerifiedUser.deleteMany({}),
+      AuthAttempt.deleteMany({}),
+    ]);
     res.cookie('authToken', '', {
       sameSite: 'None',
       secure: true,
@@ -22,7 +23,7 @@ router.get('/deleteall', async (req, res) => {
       maxAge: 10,
     });
     res.json({ status: true, message: 'All data deleted' });
-  } catch (e) {
+  } catch {
     res.status(500).json({ status: false, message: 'Error deleting data' });
   }
 });
@@ -31,26 +32,26 @@ router.use(fireWall);
 
 router.post('/sendotp', async (req, res) => {
   try {
-    const result = await sendOtp(req);
-    if (!result.status) return res.status(400).json(result);
-    res.cookie('otpToken', result.token, {
+    const r = await sendOtp(req);
+    if (!r.status) return res.status(400).json(r);
+    res.cookie('otpToken', r.token, {
       httpOnly: true,
       sameSite: 'None',
       secure: true,
       maxAge: OTP_EXPIRY_TIME,
     });
-    res.status(200).json({ status: true, message: 'OTP sent:' + result.otp });
-  } catch (e) {
+    res.status(200).json({ status: true, message: 'OTP sent:' + r.otp });
+  } catch {
     res.status(500).json({ status: false, message: 'Internal error' });
   }
 });
 
 router.post('/verifyotp', async (req, res) => {
   try {
-    const result = await verifyOtp(req, res);
-    if (!result.status) return res.status(400).json(result);
-    res.status(200).json(result);
-  } catch (e) {
+    const r = await verifyOtp(req, res);
+    if (!r.status) return res.status(400).json(r);
+    res.status(200).json(r);
+  } catch {
     res.status(500).json({ status: false, message: 'Internal error' });
   }
 });
@@ -58,6 +59,5 @@ router.post('/verifyotp', async (req, res) => {
 module.exports = router;
 
 (async () => {
-  await VerifiedUser.deleteMany({});
-  await AuthAttempt.deleteMany({});
+  await Promise.all([VerifiedUser.deleteMany({}), AuthAttempt.deleteMany({})]);
 })();

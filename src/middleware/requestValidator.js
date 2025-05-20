@@ -4,78 +4,68 @@ const { AuthAttempt } = require('../model/Model');
 async function sendOtpRequestValidator(req, res, next, block) {
   const { phoneNumber, fingerprint } = req.body;
   const now = Date.now();
-  const record = await AuthAttempt.findOne({ fingerprint });
-  if (!record) {
+  const r = await AuthAttempt.findOne({ fingerprint }).lean();
+
+  if (!r) {
     await new AuthAttempt({ fingerprint, phoneNumber }).save();
     return next();
   }
 
-  if (record.isBlocked && now - record.blockedAt.getTime() < 0)
+  if (r.isBlocked && now < r.blockedAt.getTime())
     return res.status(403).json({ status: false, message: 'Access denied' });
-
-  if (record.failedAttempts > 3)
+  if (r.failedAttempts > 3)
     return block('Too many failed attempts', fingerprint, res);
-
-  if (record.pendingOtp && record.phoneNumber === phoneNumber) {
-    await AuthAttempt.updateOne(
+  if (r.pendingOtp && r.phoneNumber === phoneNumber) {
+    AuthAttempt.updateOne(
       { fingerprint },
       { $inc: { failedAttempts: 1 } }
-    );
+    ).exec();
     return res
       .status(403)
       .json({ status: false, message: 'OTP already pending' });
   }
 
-  if (now - record.lastAttemptToSendOtp.getTime() < 60000) {
-    await AuthAttempt.updateOne(
+  if (now - r.lastAttemptToSendOtp.getTime() < 60000) {
+    AuthAttempt.updateOne(
       { fingerprint },
       { $inc: { failedAttempts: 1 } }
-    );
+    ).exec();
     return res
       .status(400)
       .json({ status: false, message: 'Wait before retrying' });
   }
 
-  return next();
+  next();
 }
 
 async function verifyOtpRequestValidator(req, res, next, block) {
   try {
-    
-    console.log('verifyOtpRequestValidator : Cookies:', req.cookies);
-    const {  fingerprint } = req.body;
+    const { fingerprint } = req.body,
+      token = req.cookies?.otpToken;
     if (!fingerprint)
       return res
         .status(403)
-        .json({ status: false, message: 'fingerprint missing 1' });
-    if (!req.cookies?.otpToken)
-      return res
-        .status(403)
-        .json({ status: false, message: 'token missing 1' });
+        .json({ status: false, message: 'fingerprint missing' });
+    if (!token)
+      return res.status(403).json({ status: false, message: 'token missing' });
 
-    const otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
-    if (!otpToken)
-      return res.status(403).json({ status: false, message: 'token expired' });
-
-    const record = await AuthAttempt.findOne({ fingerprint });
-    if (!record)
+    const { otp, phoneNumber } = jwt.verify(token, process.env.PASSWORD);
+    const r = await AuthAttempt.findOne({ fingerprint }).lean();
+    if (!r)
       return res
         .status(403)
         .json({ status: false, message: 'Invalid session' });
-
-    if (record.NoAttemptToVerifyOtp > 5)
+    if (r.NoAttemptToVerifyOtp > 5)
       return block('Too many attempts', fingerprint, res);
 
-    const { otp, phoneNumber } = otpToken;
-    req.userData = { otp, phoneNumber }; 
- 
-    return next();
+    req.userData = { otp, phoneNumber };
+    next();
   } catch (e) {
-    await AuthAttempt.updateOne(
-      { fingerprint },
+    AuthAttempt.updateOne(
+      { fingerprint: req.body.fingerprint },
       { $inc: { failedAttempts: 1, NoAttemptToVerifyOtp: 1 } }
-    );
-    return res.status(403).json({ status: false, message: e.message });
+    ).exec();
+    res.status(403).json({ status: false, message: e.message });
   }
 }
 
