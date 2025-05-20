@@ -8,7 +8,6 @@ const {
 module.exports = async function firewall(req, res, next) {
   try {
     const { userOtp, phoneNumber, fingerprint, userBrowserData } = req.body;
-    
     const origin = xss(req.get('Origin') || '');
     const referer = xss(req.get('Referer') || '');
     const userAgent = xss(req.get('User-Agent') || '');
@@ -66,16 +65,18 @@ module.exports = async function firewall(req, res, next) {
 };
 
 async function block(reason, fingerprint, res) {
-  await AuthAttempt.updateOne(
-    { fingerprint},
-    {
-      $set: {
-        isBlocked: true,
-        blockedAt: new Date(),
-        reasonForBlocked: reason,
+  if (fingerprint) {
+    await AuthAttempt.updateOne(
+      { fingerprint },
+      {
+        $set: {
+          isBlocked: true,
+          blockedAt: new Date(),
+          reasonForBlocked: reason,
+        },
       },
-    },
-    { upsert: true }
-  );
+      { upsert: true }
+    );
+  }
   return res.status(403).json({ status: false, message: 'Access denied' });
 }

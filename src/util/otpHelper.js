@@ -17,13 +17,11 @@ async function sendOtp(req) {
     await AuthAttempt.deleteOne({ fingerprint });
     return { status: false, message: 'Failed to send OTP via provider.' };
   }
-
   const token = jwt.sign(
     { phoneNumber, otp, fingerprint },
     process.env.PASSWORD,
     { expiresIn: OTP_EXPIRY_TIME }
   );
-
   await AuthAttempt.updateOne(
     { fingerprint },
     {
@@ -37,27 +35,24 @@ async function sendOtp(req) {
     },
     { upsert: true }
   );
-
   return { status: true, token };
 }
 
 async function verifyOtp(req, res) {
-  
   const { userOtp, fingerprint } = req.body;
-  if (!fingerprint)
-    return res
-      .status(403)
-      .json({ status: false, message: 'fingerprint missing 2' });
- 
-     const otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
-     if (!otpToken)
-       return res.status(403).json({ status: false, message: 'token expired' });
-
+  if (!fingerprint) return { status: false, message: 'fingerprint missing' };
+  let otpToken;
+  try {
+    otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
+  } catch (e) {
+    return { status: false, message: 'token expired' };
+  }
   if (String(otpToken.otp) === String(userOtp)) {
-    const user = new VerifiedUser({ phoneNumber:otpToken.phoneNumber, fingerprint });
-    await user.save();
+    await new VerifiedUser({
+      phoneNumber: otpToken.phoneNumber,
+      fingerprint,
+    }).save();
     await AuthAttempt.deleteOne({ fingerprint });
-
     res.cookie('otpToken', '', {
       sameSite: 'Strict',
       httpOnly: true,

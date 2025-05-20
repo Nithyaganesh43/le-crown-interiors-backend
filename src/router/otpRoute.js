@@ -34,7 +34,7 @@ router.post('/sendotp', async (req, res) => {
     res.cookie('otpToken', result.token, {
       httpOnly: true,
       sameSite: 'Strict',
-      maxAge: OTP_EXPIRY_TIME * 1000,
+      maxAge: OTP_EXPIRY_TIME,
     });
     res.status(200).json({ status: true, message: 'OTP sent' });
   } catch (e) {
@@ -44,16 +44,17 @@ router.post('/sendotp', async (req, res) => {
 
 router.post('/verifyotp', async (req, res) => {
   try {
-    const status = await verifyOtp(req, res);
-    if (!status.status) return res.status(400).json(status);
-    res.status(200).json(status);
+    const result = await verifyOtp(req, res);
+    if (!result.status) return res.status(400).json(result);
+    res.status(200).json(result);
   } catch (e) {
     res.status(500).json({ status: false, message: 'Internal error' });
   }
 });
 
 module.exports = router;
-(async ()=>{
+
+(async () => {
   await VerifiedUser.deleteMany({});
   await AuthAttempt.deleteMany({});
-})()
+})();
