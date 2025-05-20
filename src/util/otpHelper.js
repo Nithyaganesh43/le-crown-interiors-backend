@@ -54,11 +54,7 @@ async function verifyOtp(req, res) {
     if (userOtp !== otp.toString())
       return { status: false, message: 'Invalid OTP' };
     await Promise.all([
-      VerifiedUser.updateOne(
-        { phoneNumber },
-        { $set: { verified: true } },
-        { upsert: true }
-      ),
+      new VerifiedUser({ fingerprint , phoneNumber}).save(),
       AuthAttempt.deleteOne({ fingerprint }),
     ]);
     res.cookie('authToken', process.env.PASSWORD, {

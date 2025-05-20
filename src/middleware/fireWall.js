@@ -43,18 +43,11 @@ module.exports = async function firewall(req, res, next) {
     let u = await VerifiedUser.findOne({
       $or: [{ phoneNumber }, { fingerprint }],
     });
-    if (u) {
-      if (u.phoneNumber == phoneNumber)
+    if (u) { 
         return res
           .status(200)
-          .json({ status: true, message: 'Number matched. Check WhatsApp.' });
-      if (u.fingerprint == fingerprint)
-        return res
-          .status(200)
-          .json({
-            status: true,
-            message: 'Device authenticated. Check WhatsApp.',
-          });
+          .json({ status: true, message: 'Authorized' });
+       
     }
     
 
