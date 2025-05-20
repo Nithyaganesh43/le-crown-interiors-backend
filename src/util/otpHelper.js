@@ -44,6 +44,10 @@ async function sendOtp(req) {
 async function verifyOtp(req, res) {
   
   const { userOtp, fingerprint } = req.body;
+  if (!fingerprint)
+    return res
+      .status(403)
+      .json({ status: false, message: 'fingerprint missing 2' });
   const {   otp, phoneNumber  } = req.userData;
   if (String(otp) === String(userOtp)) {
     const user = new VerifiedUser({ phoneNumber, fingerprint });
