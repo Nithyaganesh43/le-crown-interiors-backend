@@ -20,15 +20,14 @@ const ImageSchema = new mongoose.Schema(
 );
 const VerifiedUserSchema = new mongoose.Schema(
   {
-    deviceId: { type: String, required: true },
+    fingerprint: { type: String, required: true },
     phoneNumber: { type: String, unique: true, required: true },
   },
   { timestamps: true }
 );
-
 const AuthAttemptSchema = new mongoose.Schema(
   {
-    deviceId: { type: String,  required: true },
+    fingerprint: { type: String, required: true },
     phoneNumber: { type: String },
     failedAttempts: { type: Number, default: 0 },
     lastAttemptToSendOtp: { type: Date, default: Date.now },

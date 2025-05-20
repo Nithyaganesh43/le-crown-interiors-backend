@@ -1,7 +1,11 @@
 const xss = require('xss');
 const { AuthAttempt, VerifiedUser } = require('../model/Model');
+const {
+  sendOtpRequestValidator,
+  verifyOtpRequestValidator,
+} = require('./requestValidator');
 
-module.exports = async function validator(req, res, next) {
+module.exports = async function firewall(req, res, next) {
   try {
     const { userOtp, phoneNumber, fingerprint, userBrowserData } = req.body;
     const origin = xss(req.get('Origin') || '');
@@ -11,113 +15,58 @@ module.exports = async function validator(req, res, next) {
       req.get('Accept-Language')?.split(',')[0].split('-')[0] || ''
     );
 
-    if (!origin) return await block('Access denied', fingerprint, res);
-    if (!referer)
-      return await block('Access denied', fingerprint, res);
-    if (!userAgent.includes('Mozilla'))
-      return await block('Access denied', fingerprint, res);
+    if (!origin || !referer || !userAgent.includes('Mozilla'))
+      return block('Invalid headers', fingerprint, res);
+
     if (
       !userBrowserData ||
       !userBrowserData.userAgent ||
       !userBrowserData.language
     )
-      return await block('Access denied', fingerprint, res);
+      return block('Missing browser data', fingerprint, res);
+
     if (userAgent !== userBrowserData.userAgent)
-      return await block(
-        'Access denied',
-        fingerprint,
-        res
-      );
+      return block('User agent mismatch', fingerprint, res);
+
     const clientLang = userBrowserData.language.split('-')[0];
     if (language !== clientLang)
-      return await block('Access denied', fingerprint, res);
+      return block('Language mismatch', fingerprint, res);
 
-    const now = Date.now();
-    const isVerifyOtp = !!userOtp;
-    const isSendOtp = !!phoneNumber;
+    if (userOtp && !/^\d{4}$/.test(userOtp))
+      return res
+        .status(400)
+        .json({ status: false, message: 'Invalid OTP format' });
 
-    if (isVerifyOtp) {
-      if (!/^\d{4}$/.test(userOtp))
-        return res
-          .status(400)
-          .json({ status: false, message: 'Invalid OTP format' });
-    }
+    if (
+      phoneNumber &&
+      !/^(\+91\s?|0)?\d{10}$/.test(phoneNumber.replace(/\s+/g, ''))
+    )
+      return res
+        .status(400)
+        .json({ status: false, message: 'Invalid phone number format' });
 
-    if (isSendOtp) {
-      if (!/^\d{10}$/.test(phoneNumber))
-        return res
-          .status(400)
-          .json({ status: false, message: 'Invalid phone number format' });
-    }
+    const verified = await VerifiedUser.findOne({ phoneNumber });
+    if (verified)
+      return res
+        .status(200)
+        .json({ status: true, message: 'Already verified. Check WhatsApp.' });
 
-    const isUserAlreadyVerified = await VerifiedUser.findOne({ phoneNumber });
-    if (isUserAlreadyVerified) {
-      return res.status(200).json({
-        status: true,
-        message: 'This number is already verified. Check your WhatsApp.',
-      });
-    }
-
-    const attempt = await AuthAttempt.findOne({ deviceId: fingerprint });
-    if (!attempt) {
-      await new AuthAttempt({ deviceId: fingerprint }).save();
-      return next();
-    }
-
-    if (attempt.blockedAt && now - attempt.blockedAt.getTime() < 86400000) {
-      return res.status(403).json({
-        status: false,
-        message: `Access denied Policy violation found`,
-      });
-    }
-
-    if (attempt.failedAttempts > 2)
-      return await block(
-        'Access denied Policy violation found',
-        fingerprint,
-        res
-      );
-
-    if (attempt.NoAttemptToVerifyOtp > 5)
-      return await block(
-        'Access denied Policy violation found',
-        fingerprint,
-        res
-      );
-
-    if (isSendOtp && attempt.pendingOtp) {
-      await AuthAttempt.updateOne(
-        { deviceId: fingerprint },
-        { $inc: { failedAttempts: 1 } }
-      );
-      return res.status(403).json({
-        status: false,
-        message:
-          'An OTP is already pending verification for the number ending in ' +
-          phoneNumber.slice(-3),
-      });
-    }
-
-    if (isSendOtp && now - attempt.lastAttemptToSendOtp.getTime() < 60000) {
-      await AuthAttempt.updateOne(
-        { deviceId: fingerprint },
-        { $inc: { failedAttempts: 1 } }
-      );
-      return res.status(400).json({
-        status: false,
-        message: 'OTP was just requested. Please wait a few minutes. Try again later',
-      });
-    }
-
-    next();
-  } catch (err) {
-    return res.status(500).json({ status: false, message: err.message });
+    if (userOtp && !phoneNumber)
+      return await verifyOtpRequestValidator(req, res, next, block);
+    else if (!userOtp && phoneNumber)
+      return await sendOtpRequestValidator(req, res, next, block);
+    else
+      return res
+        .status(400)
+        .json({ status: false, message: 'Invalid request' });
+  } catch (e) {
+    return res.status(500).json({ status: false, message: e.message });
   }
 };
 
 async function block(reason, fingerprint, res) {
   await AuthAttempt.updateOne(
-    { deviceId: fingerprint },
+    { fingerprint: fingerprint },
     {
       $set: {
         isBlocked: true,
@@ -127,7 +76,5 @@ async function block(reason, fingerprint, res) {
     },
     { upsert: true }
   );
-  return res
-    .status(403)
-    .json({ status: false, message: `Access denied ` });
+  return res.status(403).json({ status: false, message: 'Access denied' });
 }
