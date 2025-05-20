@@ -61,7 +61,7 @@ async function verifyOtp(req, res) {
       ),
       AuthAttempt.deleteOne({ fingerprint }),
     ]);
-    res.cookie('authToken', 'process.env.PASSWORD', {
+    res.cookie('authToken', process.env.PASSWORD, {
       sameSite: 'None',
       secure: true,
       httpOnly: true,
