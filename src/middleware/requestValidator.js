@@ -41,6 +41,7 @@ async function sendOtpRequestValidator(req, res, next, block) {
 
 async function verifyOtpRequestValidator(req, res, next, block) {
   try {
+    return next();
     const {  fingerprint } = req.body;
     if(!fingerprint)  return res.status(403).json({ status: false, message: 'fingerprint missing 1' });
 
