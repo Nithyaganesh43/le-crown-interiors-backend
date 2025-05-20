@@ -42,18 +42,14 @@ async function sendOtp(req) {
 }
 
 async function verifyOtp(req, res) {
-  const { userOtp, otp, phoneNumber, fingerprint } = req.userData;
+  
+  const { userOtp, fingerprint } = req.body;
+  const {   otp, phoneNumber  } = req.userData;
   if (String(otp) === String(userOtp)) {
     const user = new VerifiedUser({ phoneNumber, fingerprint });
     await user.save();
     await AuthAttempt.deleteOne({ fingerprint });
-    res.cookie(
-      'authToken',
-      jwt.sign({ phoneNumber, fingerprint }, process.env.PASSWORD, {
-        expiresIn: '1y',
-      }),
-      { httpOnly: true, sameSite: 'Strict', maxAge: 365 * 24 * 60 * 60 * 1000 }
-    ); 
+    
     
     res.cookie('otpToken', '', {
       sameSite: 'Strict',

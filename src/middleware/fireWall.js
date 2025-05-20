@@ -66,7 +66,7 @@ module.exports = async function firewall(req, res, next) {
 
 async function block(reason, fingerprint, res) {
   await AuthAttempt.updateOne(
-    { fingerprint: fingerprint },
+    { fingerprint},
     {
       $set: {
         isBlocked: true,

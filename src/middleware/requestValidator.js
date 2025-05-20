@@ -42,7 +42,7 @@ async function sendOtpRequestValidator(req, res, next, block) {
 async function verifyOtpRequestValidator(req, res, next, block) {
   try {
     const { userOtp, fingerprint } = req.body;
-  
+
     const otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
     if (!otpToken)
       return res.status(403).json({ status: false, message: 'token expired' });
@@ -56,14 +56,9 @@ async function verifyOtpRequestValidator(req, res, next, block) {
     if (record.NoAttemptToVerifyOtp > 5)
       return block('Too many attempts', fingerprint, res);
 
-
-    const { otp, phoneNumber  } = otpToken;
-    if (record.fingerprint !== otpToken.fingerprint)
-      return res
-        .status(403)
-        .json({ status: false, message: 'Device mismatched' });
-
-    req.userData = { otp, phoneNumber, fingerprint, userOtp };
+    const { otp, phoneNumber } = otpToken;
+    req.userData = { otp, phoneNumber }; 
+ 
     return next();
   } catch (e) {
     await AuthAttempt.updateOne(
