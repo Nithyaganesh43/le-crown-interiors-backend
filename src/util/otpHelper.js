@@ -45,7 +45,7 @@ async function verifyOtp(req, res) {
   if (!req.cookies?.otpToken)
     return { status: false, message: 'token missing 2' };
   try {
-    otpToken = jwt.verify(req.cookiess.otpToken, process.env.PASSWORD);
+    otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
   } catch (e) {
     return { status: false, message: 'token expired' };
   }

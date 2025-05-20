@@ -46,12 +46,12 @@ async function verifyOtpRequestValidator(req, res, next, block) {
       return res
         .status(403)
         .json({ status: false, message: 'fingerprint missing 1' });
-    if (!req.cookiess?.otpToken)
+    if (!req.cookies?.otpToken)
       return res
         .status(403)
         .json({ status: false, message: 'token missing 1' });
 
-    const otpToken = jwt.verify(req.cookiess.otpToken, process.env.PASSWORD);
+    const otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
     if (!otpToken)
       return res.status(403).json({ status: false, message: 'token expired' });
 
