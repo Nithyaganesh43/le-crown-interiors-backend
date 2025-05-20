@@ -56,9 +56,6 @@ async function verifyOtpRequestValidator(req, res, next, block) {
 
     if (record.NoAttemptToVerifyOtp > 5)
       return block('Too many attempts', fingerprint, res);
-
-    const { otp, phoneNumber } = otpToken;
-    req.userData = { otp, phoneNumber }; 
  
     return next();
   } catch (e) {

@@ -48,13 +48,16 @@ async function verifyOtp(req, res) {
     return res
       .status(403)
       .json({ status: false, message: 'fingerprint missing 2' });
-  const {   otp, phoneNumber  } = req.userData;
-  if (String(otp) === String(userOtp)) {
-    const user = new VerifiedUser({ phoneNumber, fingerprint });
+ 
+     const otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
+     if (!otpToken)
+       return res.status(403).json({ status: false, message: 'token expired' });
+
+  if (String(otpToken.otp) === String(userOtp)) {
+    const user = new VerifiedUser({ phoneNumber:otpToken.phoneNumber, fingerprint });
     await user.save();
     await AuthAttempt.deleteOne({ fingerprint });
-    
-    
+
     res.cookie('otpToken', '', {
       sameSite: 'Strict',
       httpOnly: true,
