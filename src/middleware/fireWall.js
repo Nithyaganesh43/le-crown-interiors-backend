@@ -7,6 +7,8 @@ const {
 
 module.exports = async function firewall(req, res, next) {
   try {
+
+    console.log('firewall : Cookies:', req.cookies);
     const { userOtp, phoneNumber, fingerprint, userBrowserData } = req.body;
     const origin = xss(req.get('Origin') || '');
     const referer = xss(req.get('Referer') || '');

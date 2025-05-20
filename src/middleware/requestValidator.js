@@ -41,6 +41,8 @@ async function sendOtpRequestValidator(req, res, next, block) {
 
 async function verifyOtpRequestValidator(req, res, next, block) {
   try {
+    
+    console.log('verifyOtpRequestValidator : Cookies:', req.cookies);
     const {  fingerprint } = req.body;
     if (!fingerprint)
       return res

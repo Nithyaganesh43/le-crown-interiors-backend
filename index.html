@@ -30,7 +30,7 @@
     <script>
         async function cleardb() {
             try {
-                const res = await fetch('https://le-crown-interiors-backend.onrender.com/otp/deleteall', { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+                const res = await fetch('https://le-crown-interiors-backend.onrender.com/otp/deleteall', { method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' } });
                 const data = await res.json();
                 document.getElementById("message").innerHTML = data.message;
             } catch (e) { document.getElementById("message").innerHTML = e.message; }
