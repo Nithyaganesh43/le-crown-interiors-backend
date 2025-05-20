@@ -56,7 +56,7 @@ async function verifyOtp(req, res) {
     }).save();
     await AuthAttempt.deleteOne({ fingerprint });
      res.cookie('otpToken', '', {
-      sameSite: 'Strict',
+      sameSite: 'None',
       httpOnly: true,
       maxAge: 10,
     });

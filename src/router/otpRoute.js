@@ -10,12 +10,12 @@ router.get('/deleteall', async (req, res) => {
     await VerifiedUser.deleteMany({});
     await AuthAttempt.deleteMany({});
      res.cookie('authToken', '', {
-      sameSite: 'Strict',
+      sameSite: 'None',
       httpOnly: true,
       maxAge: 10,
     });
      res.cookie('otpToken', '', {
-      sameSite: 'Strict',
+      sameSite: 'None',
       httpOnly: true,
       maxAge: 10,
     });
@@ -33,7 +33,7 @@ router.post('/sendotp', async (req, res) => {
     if (!result.status) return res.status(400).json(result);
      res.cookie('otpToken', result.token, {
       httpOnly: true,
-      sameSite: 'Strict',
+      sameSite: 'None',
       maxAge: OTP_EXPIRY_TIME,
     });
     res.status(200).json({ status: true, message: 'OTP sent' });
