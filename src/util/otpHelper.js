@@ -42,10 +42,10 @@ async function verifyOtp(req, res) {
   const { userOtp, fingerprint } = req.body;
   if (!fingerprint) return { status: false, message: 'fingerprint missing' };
   let otpToken;
-  if (!req.cookie?.otpToken)
+  if (!req.cookies?.otpToken)
     return { status: false, message: 'token missing 2' };
   try {
-    otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
+    otpToken = jwt.verify(req.cookiess.otpToken, process.env.PASSWORD);
   } catch (e) {
     return { status: false, message: 'token expired' };
   }
@@ -55,7 +55,7 @@ async function verifyOtp(req, res) {
       fingerprint,
     }).save();
     await AuthAttempt.deleteOne({ fingerprint });
-    res.cookie('otpToken', '', {
+     res.cookie('otpToken', '', {
       sameSite: 'Strict',
       httpOnly: true,
       maxAge: 10,
