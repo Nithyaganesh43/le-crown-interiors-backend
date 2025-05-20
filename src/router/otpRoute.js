@@ -40,7 +40,7 @@ router.post('/sendotp', async (req, res) => {
       secure: true,
       maxAge: OTP_EXPIRY_TIME,
     });
-    res.status(200).json({ status: true, message: 'OTP sent:'  });
+    res.status(200).json({ status: true, message: 'OTP sent'  });
   } catch {
     res.status(500).json({ status: false, message: 'Internal error' });
   }
