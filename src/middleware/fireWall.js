@@ -49,10 +49,11 @@ module.exports = async function firewall(req, res, next) {
         message: 'Already verified. Check WhatsApp.',
       });
 
-    if (otp && !phoneNumber)
+    if (userOtp && !phoneNumber)
       return verifyOtpRequestValidator(req, res, next, block);
-    if (phoneNumber && !otp)
+    if (phoneNumber && !userOtp)
       return sendOtpRequestValidator(req, res, next, block);
+
     return res.status(400).json({ status: false, message: 'Invalid request' });
   } catch (e) {
     res.status(500).json({ status: false, message: e.message });
