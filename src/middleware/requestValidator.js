@@ -57,8 +57,8 @@ async function verifyOtpRequestValidator(req, res, next, block) {
       return block('Too many attempts', fingerprint, res);
 
 
-    const { otp, phoneNumber, fingerprint: tokenFingerprint } = otpToken;
-    if (record.fingerprint !== tokenFingerprint)
+    const { otp, phoneNumber  } = otpToken;
+    if (record.fingerprint !== otpToken.fingerprint)
       return res
         .status(403)
         .json({ status: false, message: 'Device mismatched' });
