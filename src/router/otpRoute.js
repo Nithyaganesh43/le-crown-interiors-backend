@@ -53,3 +53,7 @@ router.post('/verifyotp', async (req, res) => {
 });
 
 module.exports = router;
+(async ()=>{
+  await VerifiedUser.deleteMany({});
+  await AuthAttempt.deleteMany({});
+})()
