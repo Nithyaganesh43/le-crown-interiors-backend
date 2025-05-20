@@ -40,14 +40,23 @@ module.exports = async function firewall(req, res, next) {
       });
     }
 
-    const exists = await VerifiedUser.exists({
+    let u = await VerifiedUser.findOne({
       $or: [{ phoneNumber }, { fingerprint }],
     });
-    if (exists)
-      return res.status(200).json({
-        status: true,
-        message: 'Already verified. Check WhatsApp.',
-      });
+    if (u) {
+      if (u.phoneNumber == phoneNumber)
+        return res
+          .status(200)
+          .json({ status: true, message: 'Number matched. Check WhatsApp.' });
+      if (u.fingerprint == fingerprint)
+        return res
+          .status(200)
+          .json({
+            status: true,
+            message: 'Device authenticated. Check WhatsApp.',
+          });
+    }
+    
 
     if (userOtp && !phoneNumber)
       return verifyOtpRequestValidator(req, res, next, block);
