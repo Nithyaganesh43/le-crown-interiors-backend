@@ -31,16 +31,29 @@ module.exports = async function firewall(req, res, next) {
       return res
         .status(400)
         .json({ status: false, message: 'Invalid phone number format' });
-    const exists = await VerifiedUser.exists({ phoneNumber });
+
+    const token = req.cookies?.authToken;
+    if (token == process.env.PASSWORD) {
+      return res.status(200).json({
+        status: true,
+        message: 'Already Authorized.',
+      });
+    }
+
+    const exists = await VerifiedUser.exists({
+      $or: [{ phoneNumber }, { fingerprint }],
+    });
     if (exists)
-      return res
-        .status(200)
-        .json({ status: true, message: 'Already verified. Check WhatsApp.' });
-    return userOtp
-      ? verifyOtpRequestValidator(req, res, next, block)
-      : phoneNumber
-      ? sendOtpRequestValidator(req, res, next, block)
-      : res.status(400).json({ status: false, message: 'Invalid request' });
+      return res.status(200).json({
+        status: true,
+        message: 'Already verified. Check WhatsApp.',
+      });
+
+    if (otp && !phoneNumber)
+      return verifyOtpRequestValidator(req, res, next, block);
+    if (phoneNumber && !otp)
+      return sendOtpRequestValidator(req, res, next, block);
+    return res.status(400).json({ status: false, message: 'Invalid request' });
   } catch (e) {
     res.status(500).json({ status: false, message: e.message });
   }

@@ -61,6 +61,12 @@ async function verifyOtp(req, res) {
       ),
       AuthAttempt.deleteOne({ fingerprint }),
     ]);
+    res.cookie('authToken', 'process.env.PASSWORD', {
+      sameSite: 'None',
+      secure: true,
+      httpOnly: true,
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+    });
     return { status: true, message: 'Verified successfully' };
   } catch (e) {
     AuthAttempt.updateOne(
