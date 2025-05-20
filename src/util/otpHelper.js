@@ -59,7 +59,7 @@ async function verifyOtp(req, res) {
         { $set: { verified: true } },
         { upsert: true }
       ),
-      AuthAttempt.updateOne({ fingerprint }, { $set: { pendingOtp: false } }),
+      AuthAttempt.deleteOne({ fingerprint }),
     ]);
     return { status: true, message: 'Verified successfully' };
   } catch (e) {
