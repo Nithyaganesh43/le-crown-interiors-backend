@@ -42,6 +42,8 @@ async function verifyOtp(req, res) {
   const { userOtp, fingerprint } = req.body;
   if (!fingerprint) return { status: false, message: 'fingerprint missing' };
   let otpToken;
+  if (!req.cookie?.otpToken)
+    return { status: false, message: 'token missing 2' };
   try {
     otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
   } catch (e) {
