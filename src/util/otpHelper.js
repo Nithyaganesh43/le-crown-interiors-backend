@@ -2,7 +2,7 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { VerifiedUser, AuthAttempt } = require('../model/Model');
 
-const OTP_EXPIRY_TIME = 60 * 60 * 1000;
+const OTP_EXPIRY_TIME = 60 * 60 * 1000 *10;
 
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000);
@@ -42,6 +42,7 @@ async function verifyOtp(req, res) {
   const { userOtp, fingerprint } = req.body;
   if (!fingerprint) return { status: false, message: 'fingerprint missing' };
   let otpToken;
+  if(!req.cookie.otpToken) return { status: false, message: 'token missing' };
   try {
     otpToken = jwt.verify(req.cookies.otpToken, process.env.PASSWORD);
   } catch (e) {
