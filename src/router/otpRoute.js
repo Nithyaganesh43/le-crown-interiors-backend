@@ -9,13 +9,15 @@ router.get('/deleteall', async (req, res) => {
   try {
     await VerifiedUser.deleteMany({});
     await AuthAttempt.deleteMany({});
-     res.cookie('authToken', '', {
+    res.cookie('authToken', '', {
       sameSite: 'None',
+      secure: true,
       httpOnly: true,
       maxAge: 10,
     });
-     res.cookie('otpToken', '', {
+    res.cookie('otpToken', '', {
       sameSite: 'None',
+      secure: true,
       httpOnly: true,
       maxAge: 10,
     });
@@ -31,12 +33,13 @@ router.post('/sendotp', async (req, res) => {
   try {
     const result = await sendOtp(req);
     if (!result.status) return res.status(400).json(result);
-     res.cookie('otpToken', result.token, {
+    res.cookie('otpToken', result.token, {
       httpOnly: true,
       sameSite: 'None',
+      secure: true,
       maxAge: OTP_EXPIRY_TIME,
     });
-    res.status(200).json({ status: true, message: 'OTP sent' });
+    res.status(200).json({ status: true, message: 'OTP sent:' + result.otp });
   } catch (e) {
     res.status(500).json({ status: false, message: 'Internal error' });
   }
