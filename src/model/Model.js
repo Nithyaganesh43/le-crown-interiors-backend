@@ -20,9 +20,9 @@ const ImageSchema = new mongoose.Schema(
 );
 const VerifiedUserSchema = new mongoose.Schema(
   {
-    userName : String ,
-    pinCode : String,
-    currentReq : String,
+    userName : { type: String },
+    pinCode : { type: String },
+    currentReq : { type: String },
     fingerprint: { type: String, required: true },
     phoneNumber: { type: String, unique: true, required: true },
   },
