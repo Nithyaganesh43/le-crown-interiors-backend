@@ -31,7 +31,7 @@ module.exports = `<!DOCTYPE html>
 </head>
 <body class="p-10">
   <div class="max-w-5xl mx-auto">
-    <h1 class="text-4xl font-bold mb-6 text-center">GET /image/all – Get All Images Grouped by Folder</h1>
+    <h1 class="text-4xl font-bold mb-6 text-center">1.GET /image/all – Get All Images Grouped by Folder</h1>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold border-b border-gray-600 pb-2 mb-4">Endpoint Details</h2>
