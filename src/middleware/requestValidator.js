@@ -3,6 +3,10 @@ const { AuthAttempt } = require('../model/Model');
 
 async function sendOtpRequestValidator(req, res, next, block) {
   const { phoneNumber, fingerprint } = req.body;
+
+
+
+
   const now = Date.now();
   const r = await AuthAttempt.findOne({ fingerprint }).lean();
 
@@ -40,7 +44,15 @@ async function sendOtpRequestValidator(req, res, next, block) {
 
 async function verifyOtpRequestValidator(req, res, next, block) {
   try {
-    const { fingerprint } = req.body,
+    const { fingerprint ,currentReq ,userName , pinCode } = req.body;
+
+if(!currentReq) return res.status(400).send('currentReq missing');
+else if(currentReq.length>=50) return res.status(400).send('currentReq too long');
+else if(!userName) return res.status(400).send('userName missing');
+else if(typeof userName!=='string'||userName.length<3) return res.status(400).send('invalid userName');
+else if(!/^\d{6}$/.test(pinCode)) return res.status(400).send('invalid pinCode');
+
+
       token = req.cookies?.otpToken;
     if (!fingerprint)
       return res

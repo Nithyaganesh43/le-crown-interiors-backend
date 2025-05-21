@@ -44,7 +44,8 @@ async function sendOtp(req) {
 }
 
 async function verifyOtp(req, res) {
-  const { userOtp, fingerprint } = req.body;
+  const { userOtp, fingerprint , currentReq ,userName , pinCode } = req.body;
+
   if (!fingerprint) return { status: false, message: 'fingerprint missing' };
   const tokenStr = req.cookies?.otpToken;
   if (!tokenStr) return { status: false, message: 'token missing 2' };
@@ -54,7 +55,7 @@ async function verifyOtp(req, res) {
     if (userOtp !== otp.toString())
       return { status: false, message: 'Invalid OTP' };
     await Promise.all([
-      new VerifiedUser({ fingerprint , phoneNumber}).save(),
+      new VerifiedUser({ fingerprint , phoneNumber,currentReq ,userName , pinCode}).save(),
       AuthAttempt.deleteOne({ fingerprint }),
     ]);
     res.cookie('authToken', process.env.PASSWORD, {
