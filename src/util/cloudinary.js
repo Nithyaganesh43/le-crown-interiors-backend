@@ -1,4 +1,3 @@
- 
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -6,36 +5,35 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
-}); 
+});
 
 const uploadImg = async (path) => {
   const res = await cloudinary.uploader.upload(path, {
     folder: 'lecrowninteriors',
-    format: 'avif',
     resource_type: 'image',
-    quality: 'auto',
     fetch_format: 'auto',
+    format: 'avif',
+    quality: 'auto:eco',
+    transformation: [{ width: 1600, crop: 'limit' }],
   });
   return {
     public_id: res.public_id,
-    url: res.url,
+    url: res.secure_url,
     dimensions: {
       width: res.width,
       height: res.height,
     },
   };
 };
+
 const deleteImg = async (id) => {
   try {
     const data = await cloudinary.uploader.destroy(id);
-    console.log(data)
+    console.log(data);
     return data;
   } catch (e) {
     console.error(e);
   }
 };
- 
 
-module.exports = {uploadImg,deleteImg};
-
- 
+module.exports = { uploadImg, deleteImg };

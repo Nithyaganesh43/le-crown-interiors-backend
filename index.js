@@ -10,7 +10,7 @@ const imageRoute = require('./src/router/image');
 const doc = require('./src/util/documentaion');
 
 
-app.use('/otp', otpRoute);//otp module 
+app.use('/otp', otpRoute); 
 app.use('/image', imageRoute);
 app.use((req, res) => res.send(doc));
 
