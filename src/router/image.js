@@ -13,6 +13,21 @@ router.get('/all', async (req, res) => {
   res.json(allData);
 });
 
+router.get('/folder/:folderName', (req, res) => {
+  const { folderName } = req.params;
+  const folderImages = allData?.[folderName];
+
+  if (!folderImages) {
+    return res.status(404).json({
+      status: false,
+      message: `Folder "${folderName}" not found`,
+    });
+  }
+
+  res.json(folderImages);
+});
+
+
 const auth = (req, res, next) => {
   if (req.body?.PASSWORD === process.env.PASSWORD) return next();
   res.status(400).send('Access Denied');
@@ -54,6 +69,8 @@ router.delete('/delete', auth, async (req, res) => {
       return res
         .status(400)
         .json({ status: false, message: 'public_id is required' });
+
+        
     const del = await Image.deleteOne({ 'img.public_id': public_id });
     if (del.deletedCount === 0)
       return res
