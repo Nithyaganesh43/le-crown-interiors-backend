@@ -12,9 +12,9 @@ const doc = require('./src/util/documentaion');
 
 app.use('/otp', otpRoute); 
 app.use('/image', imageRoute);
-app.get('/env',(req,res)=>{
-  res.send(global.Config.get(req.body.API) ?? "Sorry");
-})
+// app.get('/env',(req,res)=>{
+//   res.send(global.Config.get(req.body.API) ?? "Sorry");
+// })
 app.use((req, res) => res.send(doc));
 
 connectToDb()

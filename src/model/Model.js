@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Image Schema
 const ImageSchema = new mongoose.Schema(
   {
     folderName: { type: String },
@@ -18,6 +19,8 @@ const ImageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Verified User Schema
 const VerifiedUserSchema = new mongoose.Schema(
   {
     fingerprint: { type: String, required: true },
@@ -25,6 +28,8 @@ const VerifiedUserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Auth Attempt Schema
 const AuthAttemptSchema = new mongoose.Schema(
   {
     fingerprint: { type: String, required: true },
@@ -40,9 +45,37 @@ const AuthAttemptSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const messageSchema = new mongoose.Schema({
+  sender: {
+    type: String,
+    enum: ['user', 'bot'],
+    required: true,
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+  time: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const chatSchema = new mongoose.Schema(
+  {
+    user: { type: String, required: true, unique: true },
+    chat: {
+      type: [messageSchema],
+      default: [],
+    },
+  },
+  { timestamps: true }
+);
+
+// Export all models
 module.exports = {
   VerifiedUser: mongoose.model('VerifiedUser', VerifiedUserSchema),
   AuthAttempt: mongoose.model('AuthAttempt', AuthAttemptSchema),
-  
+  Chat: mongoose.model('Chat', chatSchema),
   Image: mongoose.model('Image', ImageSchema),
 };

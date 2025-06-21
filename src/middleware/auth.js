@@ -1,29 +1,26 @@
 const auth = require('express').Router();
+const jwt = require('jsonwebtoken');
 
 module.exports = auth.use(async (req, res, next) => {
   try {
-    const token = req.cookies?.authToken;
-    if (token == process.env.PASSWORD + process.env.PASSWORD) next();
-    else {
-      await Promise.all([
-        VerifiedUser.deleteMany({}),
-        AuthAttempt.deleteMany({}),
-      ]);
-      res.cookie('authToken', '', {
-        sameSite: 'None',
-        secure: true,
-        httpOnly: true,
-        maxAge: 10,
-      });
-      res.cookie('otpToken', '', {
-        sameSite: 'None',
-        secure: true,
-        httpOnly: true,
-        maxAge: 10,
-      });
-      res.json({ status: true, message: 'All data deleted' });
+    const userToken = req.cookies?.authToken;
+
+    if (!userToken) {
+      throw new Error('Token missing');
     }
-  } catch {
-    res.status(500).json({ status: false, message: 'Error deleting data' });
+
+    const decoded = jwt.verify(userToken, process.env.PASSWORD);  
+
+    const { user, token } = decoded;  
+
+    if (token === process.env.PASSWORD) {
+      req.user = user;
+      next();
+    } else { 
+      res.status(401).send('Login to continue');
+    }
+  } catch (err) {
+    res.status(500).json({ status: false, message: 'Authentication failed' });
+
   }
 });
