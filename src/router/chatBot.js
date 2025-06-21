@@ -53,11 +53,14 @@ chat.post('/chat', async (req, res) => {
       (msg) => msg.sender === 'user' && new Date(msg.time) >= today
     );
 
-    if (messagesToday.length >= DAILY_LIMIT) {
-      return res.status(429).json({
-        error:
+    if (messagesToday.length >= DAILY_LIMIT) { 
+      chatDoc.chat.push({
+        sender: 'bot',
+        message:
           'Daily limit reached. You can send up to 10 messages per day. See you tmro!',
+        time: now,
       });
+        return   res.json({ chat: chatDoc.chat }); 
     }
 
     // Build recent chat context (last 4 messages)
