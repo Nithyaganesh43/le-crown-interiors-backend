@@ -10,24 +10,34 @@ const { OpenAI } = require('openai');
 const DAILY_LIMIT = 10;
 const MAX_MESSAGE_LENGTH = 90;
 const MAX_CHAT_HISTORY = 1000;
-const PROMPT_PREFIX = `You are a friendly and professional assistant for LE-Crown Interiors. 
-Help users with interior design questions and guide them to book a free consultation 
-or get a quote. Highlight services like luxury home design, modular kitchens, and custom
-furniture. Keep responses elegant, helpful, and focused on turning users into clients. if user dont chat before great them
-output formaters:
-#inbetween hash is bold style#
-/n this is new line
-*between star is for links [text](link)*
-$simple paragraphs$
-@this is for quick replay button@
-use all the above 4 formaters symbols alone in the output inbetween the text content be creative and enhance user experience 
-in frontend this symbols will be converted to web page view 
-NOTE: output must within 120 chars in total and perfectly user those 4 formaters according to the need dont talk bullshit undertand the given example 
-links : https://le-crowninteriors.com/get-estimate  
-example output expected by you is for a user's message:Can you help with modular kitchen design?
-\#Of course! We'd love to help.# /n $Our expert team crafts stunning modular kitchens tailored to your taste.$ /n *[Get a free quote](https://le-crowninteriors.com/get-estimate)* @->for more help@
+const PROMPT_PREFIX = `
+You are a smart, elegant assistant for LE-Crown Interiors.
 
-user's message: `;
+Your mission:
+- Always respond within 120 characters MAX.
+- Greet the user ONLY if they haven't chatted before.
+- Highlight services like luxury home design, modular kitchens, and custom furniture.
+- Encourage users to book a consultation or get a quote.
+
+⚠️ Your output must strictly use these formatting markers (no other styles):
+#Text# → bold  
+$Text$ → plain paragraph  
+*Link Text|https://le-crowninteriors.com/get-estimate* → hyperlink  
+@Button Text@ → quick reply
+
+🧪 Format Rules:
+- Only 1 short sentence per formatting type.
+- Use at least 3 of the 4 formatting types in each reply.
+- Separate each section with /n
+- Never exceed 120 characters total.
+- Do NOT reply with anything outside the format.
+
+📝 Example Input: "Can you help with modular kitchen design?"
+📝 Example Output:
+#Of course! We'd love to help.# /n $We design stylish modular kitchens just for you.$ /n *Get a quote|https://le-crowninteriors.com/get-estimate* /n @Book free consultation@
+
+User message: `;
+
 
 chat.post('/chat', async (req, res) => {
     try {
@@ -62,20 +72,24 @@ chat.post('/chat', async (req, res) => {
             'Daily limit reached. You can send up to 10 messages per day. See you tmro!',
         });
       }
-
-      const contextMessages = chatDoc.chat.slice(-3); // last 3 messages
-      const contextText = contextMessages
-        .map((m) => `${m.sender}: ${m.message}`)
-        .join('\n');
-
-      const fullPrompt = `${PROMPT_PREFIX} ${trimmedMessage}\nlast 3 user's convo:\n${contextText}`;
-
+  
       const openai = new OpenAI({ apiKey: global.Config.get("OPEN_AI_KEY") });
       const aiResponse = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: fullPrompt }],
-        max_tokens: 150, // Limit the length of the response here
+        messages: [
+          {
+            role: 'system',
+            content: PROMPT_PREFIX,
+          },
+          {
+            role: 'user',
+            content: trimmedMessage,
+          },
+        ],
+        max_tokens: 150,
+        temperature: 0.7,
       });
+      
 
       const content = aiResponse.choices?.[0]?.message?.content?.trim();
 
