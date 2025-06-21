@@ -8,10 +8,11 @@ const connectToDb = require('./src/config/mongoos');
 const otpRoute = require('./src/router/otpRoute');
 const imageRoute = require('./src/router/image');
 const doc = require('./src/util/documentaion');
-
+const chat = require("./src/router/chatBot");
 
 app.use('/otp', otpRoute); 
 app.use('/image', imageRoute);
+app.use('/chatbot', chat);
 // app.get('/env',(req,res)=>{
 //   res.send(global.Config.get(req.body.API) ?? "Sorry");
 // })
