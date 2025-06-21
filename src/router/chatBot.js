@@ -65,7 +65,7 @@ chat.post('/chat', async (req, res) => {
 
       const fullPrompt = `${PROMPT_PREFIX} ${trimmedMessage}\nlast 3 user's convo:\n${contextText}`;
 
-      const openai = new OpenAI({ apiKey: global.Config.get(OPEN_AI_KEY) });
+      const openai = new OpenAI({ apiKey: global.Config.get("OPEN_AI_KEY") });
       const aiResponse = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: fullPrompt }],
