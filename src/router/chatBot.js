@@ -58,7 +58,7 @@ chat.post('/chat', async (req, res) => {
         sender: 'bot',
         message:
           'Daily limit reached. You can send up to 10 messages per day. See you tmro!',
-        time: now,
+        time: new Date(),
       });
         return   res.json({ chat: chatDoc.chat }); 
     }
