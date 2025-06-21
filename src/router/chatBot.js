@@ -92,7 +92,7 @@ chat.post('/chat', async (req, res) => {
 
       await chatDoc.save();
 
-      res.json({ reply: content, chat: chatDoc.chat });
+      res.json({  chat: chatDoc.chat });
     } catch (err) {
     console.error('Chat error:', err);
     res.status(500).json({ error: 'Internal server error' });
