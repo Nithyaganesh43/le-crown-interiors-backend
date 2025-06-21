@@ -54,10 +54,12 @@ chat.post('/chat', async (req, res) => {
     );
 
     if (messagesToday.length >= DAILY_LIMIT) { 
+        
+    chatDoc.chat.push({ sender: 'user', message: trimmedMessage, time: now });
       chatDoc.chat.push({
         sender: 'bot',
         message:
-          'Daily limit reached. You can send up to 10 messages per day. See you tmro!',
+          'Sorry, daily limit reached. You can send up to 10 messages per day. See you tomorrow!',
         time: new Date(),
       });
         return   res.json({ chat: chatDoc.chat }); 
