@@ -33,7 +33,7 @@ module.exports = async function firewall(req, res, next) {
         .json({ status: false, message: 'Invalid phone number format' });
 
     const token = req.cookies?.authToken;
-    if (token == process.env.PASSWORD) {
+    if (token == process.env.PASSWORD + process.env.PASSWORD) {
       return res.status(200).json({
         status: true,
         message: 'Already Authorized.',
