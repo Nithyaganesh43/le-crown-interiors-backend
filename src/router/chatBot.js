@@ -28,8 +28,8 @@ Your mission:
 
 chat.post('/chat', async (req, res) => {
   try {
-    const { message, user } = req.body;
-    req.user = user; // simulate auth
+    const { message  } = req.body;
+    req.user = "user"; // simulate auth
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({
@@ -108,7 +108,7 @@ chat.post('/chat', async (req, res) => {
 
 chat.get('/getoldchat', async (req, res) => {
   try {
-    req.user = req.body.user; // simulate auth
+    req.user = "user"; // simulate auth
     const chatDoc = await Chat.findOne({ user: req.user });
 
     if (!chatDoc) {
