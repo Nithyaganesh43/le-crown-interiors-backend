@@ -11,24 +11,24 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-router.post('/', async (req, res) => {
-  try{
-  const { email } = req.body;
-  if (subscriber) {
-    return res.status(400).json({ error: 'You have already subscribed' });
-  }
-  
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required.' });
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: 'Invalid email format.' });
-  }
-  
-  const subscriber = await Subscribe.findOne({ email });
+router.post('/subscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (subscriber) {
+      return res.status(400).json({ error: 'You have already subscribed' });
+    }
 
-  const htmlContent = `
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format.' });
+    }
+
+    const subscriber = await Subscribe.findOne({ email });
+
+    const htmlContent = `
   <!DOCTYPE html>
 <html lang="en">
 
@@ -96,7 +96,7 @@ router.post('/', async (req, res) => {
 
 </html>
   `;
-    await new Subscribe({email}).save();
+    await new Subscribe({ email }).save();
     await transporter.sendMail({
       from: '"Le Crown Interiors" <contact.lecrown@gmail.com>',
       to: email,
