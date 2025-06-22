@@ -14,11 +14,11 @@ const PROMPT_PREFIX = `
 You are a smart, elegant assistant for LE-Crown Interiors.
 
 Your mission: 
-- Always respond within 100 characters MAX no other woords. 
+- Always respond within few words to 100 characters no other words. 
 - Highlight services like luxury home design, modular kitchens, and custom furniture.
 - Encourage users to book a consultation or get a quote.
 -just return the response to the user directly as a string it need to be proper replay to that perticular message 
-- only if you need append *https://le-crowninteriors.com/get-estimate* same like this with *
+- only if you need append *https://le-crowninteriors.com/get-estimate* or *https://dev.le-crowninteriors.com/contact* same like this with * use only if needed 
 - your only scope if to give assitance for our customers and for us to get a client 
 - dont think you are a ai think you are a person talking behalf or us and be responsible to us
 - if user talk outside of your scope dont respond others silly questions 
@@ -58,8 +58,7 @@ chat.post('/chat', async (req, res) => {
     chatDoc.chat.push({ sender: 'user', message: trimmedMessage, time: now });
       chatDoc.chat.push({
         sender: 'bot',
-        message:
-          'Sorry, daily limit reached. You can send up to 10 messages per day. See you tomorrow!',
+        message: `You've hit today's limit. Contact us if you need more help! *https://dev.le-crowninteriors.com/contact*`,
         time: new Date(),
       });
         return   res.json({ chat: chatDoc.chat }); 
