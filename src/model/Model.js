@@ -79,7 +79,16 @@ const subscriptionSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
+const contactSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
+  help: { type: String, required: true },
+  discription: { type: String, required: true },
+  at: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
 // Export all models
 module.exports = {
@@ -88,4 +97,5 @@ module.exports = {
   Chat: mongoose.model('Chat', chatSchema),
   Image: mongoose.model('Image', ImageSchema),
   Subscribe: mongoose.model('Subscribe', subscriptionSchema),
+  Contact: mongoose.model('Contact', contactSchema),
 };

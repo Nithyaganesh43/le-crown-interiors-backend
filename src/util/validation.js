@@ -1,4 +1,42 @@
 module.exports = {
+  validateContact: (contact) => {
+    const errors = [];
+
+    if (!contact.name || typeof contact.name !== 'string') {
+      errors.push('Name is required and must be a string.');
+    } else if (contact.name.length < 2 || contact.name.length > 50) {
+      errors.push('Name must be between 2 and 50 characters.');
+    }
+
+    const phoneRegex = /^(?:\+91\s?|)?\d{5}\s?\d{5}$/;
+    if (!contact.phoneNumber || typeof contact.phoneNumber !== 'string') {
+      errors.push('Phone number is required and must be a string.');
+    } else if (!phoneRegex.test(contact.phoneNumber)) {
+      errors.push(
+        'Phone number must be 10 digits, optionally formatted with +91 or space.'
+      );
+    }
+
+    if (!contact.help || typeof contact.help !== 'string') {
+      errors.push('Help is required and must be a string.');
+    } else if (contact.help.length < 2 || contact.help.length > 30) {
+      errors.push('Help must be between 2 and 30 characters.');
+    }
+
+    if (!contact.discription || typeof contact.discription !== 'string') {
+      errors.push('Description is required and must be a string.');
+    } else if (
+      contact.discription.length < 10 ||
+      contact.discription.length > 500
+    ) {
+      errors.push('Description must be between 10 and 500 characters.');
+    }
+
+    return {
+      isInValid: errors.length !== 0,
+      errors,
+    };
+  },
   uploadValidation: (req) => {
     const errors = [];
     const { name, title, content, description, folderName } = req.body;
@@ -70,8 +108,9 @@ module.exports = {
   },
 
   updateValidation: (req) => {
-    const errors = []; 
-    const { name, title, content, description, folderName ,public_id} = req.body;
+    const errors = [];
+    const { name, title, content, description, folderName, public_id } =
+      req.body;
 
     if (
       !public_id ||
@@ -128,5 +167,5 @@ module.exports = {
     }
 
     return errors;
-  } 
+  },
 };
