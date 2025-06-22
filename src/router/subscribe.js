@@ -14,9 +14,7 @@ const transporter = nodemailer.createTransport({
 router.post('/subscribe', async (req, res) => {
   try {
     const { email } = req.body;
-    if (subscriber) {
-      return res.status(400).json({ error: 'You have already subscribed' });
-    }
+   
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required.' });
@@ -27,7 +25,9 @@ router.post('/subscribe', async (req, res) => {
     }
 
     const subscriber = await Subscribe.findOne({ email });
-
+    if (subscriber) {
+      return res.status(400).json({ error: 'You have already subscribed' });
+    }
     const htmlContent = `
   <!DOCTYPE html>
 <html lang="en">
@@ -106,6 +106,7 @@ router.post('/subscribe', async (req, res) => {
 
     res.json({ message: 'Subscribed successfully. Confirmation email sent!' });
   } catch (err) {
+    console.log(err.message)
     res.status(500).json({ error: 'Failed to send subscription email.' });
   }
 });
