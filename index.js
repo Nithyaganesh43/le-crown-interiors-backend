@@ -9,10 +9,12 @@ const otpRoute = require('./src/router/otpRoute');
 const imageRoute = require('./src/router/image');
 const doc = require('./src/util/documentaion');
 const chat = require("./src/router/chatBot");
+const Subscribe = require("./src/router/subscribe");
 
 app.use('/otp', otpRoute); 
 app.use('/image', imageRoute);
 app.use('/chatbot', chat);
+app.use('/subscribe', Subscribe);
 // app.get('/env',(req,res)=>{
 //   res.send(global.Config.get(req.body.API) ?? "Sorry");
 // })

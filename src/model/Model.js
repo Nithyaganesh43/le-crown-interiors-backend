@@ -1,3 +1,4 @@
+const { subscribe } = require('diagnostics_channel');
 const mongoose = require('mongoose');
 
 // Image Schema
@@ -71,6 +72,14 @@ const chatSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+const subscriptionSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  at: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 
 // Export all models
 module.exports = {
@@ -78,4 +87,5 @@ module.exports = {
   AuthAttempt: mongoose.model('AuthAttempt', AuthAttemptSchema),
   Chat: mongoose.model('Chat', chatSchema),
   Image: mongoose.model('Image', ImageSchema),
+  Subscribe: mongoose.model('Subscribe', subscriptionSchema),
 };

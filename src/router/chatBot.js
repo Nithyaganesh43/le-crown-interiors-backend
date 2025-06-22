@@ -1,7 +1,7 @@
 const express = require('express');
 const chat = express.Router();
 const auth = require('../middleware/auth');
-const { Chat } = require('../model/Model');
+const { Chat} = require('../model/Model');
 const { OpenAI } = require('openai');
 
 // chat.use(auth);
