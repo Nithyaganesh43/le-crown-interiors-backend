@@ -10,7 +10,7 @@ const doc = require('./src/util/documentaion');
 const chat = require("./src/router/chatBot");
 const Subscribe = require("./src/router/subscribe");
 const Contact = require("./src/router/contactUs");
-const EstimationOrder = require("./src/router/estimationOrder");
+const EstimationOrder = require("./src/router/estimation");
 const rateLimiter = require('./src/middleware/rateLimiter');
 app.use(rateLimiter);
 app.use('/otp', otpRoute); 

@@ -3,8 +3,13 @@ const router = express.Router();
 const { EstimationOrder } = require('../model/Model');
 const validation = require('../util/validation');
 
+const auth = (req, res, next) => {
+  if (req.body?.PASSWORD === process.env.PASSWORD) return next();
+  res.status(400).send('Access Denied');
+};
+
 // GET all estimation orders
-router.get('/', async (req, res) => {
+router.get('/',auth, async (req, res) => {
   try {
     const orders = await EstimationOrder.find().sort({ createdAt: -1 });
     res.json(orders);
