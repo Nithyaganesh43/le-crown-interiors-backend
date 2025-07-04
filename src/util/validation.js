@@ -168,4 +168,55 @@ module.exports = {
 
     return errors;
   },
+
+  estimationOrderValidation: (data) => { 
+    const errors = [];
+
+    // Validate rooms
+    if (!Array.isArray(data.rooms) || data.rooms.length > 100) {
+      errors.push("rooms must be an array with a maximum of 100 entries");
+    }
+  
+    // Validate string fields with max length
+    const stringMaxLimits = {
+      wood: 100,
+      hardware: 100,
+      workmanship: 100,
+      surfaceFinish: 100,
+      deadline: 100,
+      EstimationAmount: 100,
+    };
+  
+    for (const field in stringMaxLimits) {
+      const max = stringMaxLimits[field];
+      const value = data[field];
+      if (typeof value !== "string" || value.trim() === "") {
+        errors.push(`${field} is required and must be a string`);
+      } else if (value.length > max) {
+        errors.push(`${field} exceeds maximum length of ${max}`);
+      }
+    }
+  
+    // Validate additional
+    if (data.additional) {
+      if (!Array.isArray(data.additional)) {
+        errors.push("additional must be an array of strings");
+      } else {
+        data.additional.forEach((item, index) => {
+          if (typeof item !== "string") {
+            errors.push(`additional[${index}] must be a string`);
+          } else if (item.length > 100) {
+            errors.push(`additional[${index}] exceeds maximum length of 100`);
+          }
+        });
+      }
+    }
+  
+    // Validate contact
+    if (!data.contact || typeof data.contact !== "object") {
+      errors.push("contact is required");
+    }
+  
+    return errors;
+  },
 };

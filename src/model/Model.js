@@ -90,6 +90,92 @@ const contactSchema = new mongoose.Schema({
   },
 });
 
+const roomSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    required: true
+  },
+  length: {
+    type: String,
+    required: true
+  },
+  width: {
+    type: String,
+    required: true
+  },
+  height: {
+    type: String,
+    required: true
+  }
+});
+
+const contactSchema2 = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: true
+  },
+  phoneNumber: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  address: {
+    type: String,
+    required: true
+  }
+});
+
+const estimationOrderSchema = new mongoose.Schema(
+  {
+    rooms: {
+      type: [roomSchema],
+      validate: [arrayLimit, '{PATH} exceeds the limit of 100 rooms'],
+    },
+    wood: {
+      type: String,
+      required: true,
+    },
+    hardware: {
+      type: String,
+      required: true,
+    },
+    workmanship: {
+      type: String,
+      required: true,
+    },
+    surfaceFinish: {
+      type: String,
+      required: true,
+    },
+    deadline: {
+      type: String,
+      required: true,
+    },
+    additional: {
+      type: [String],
+      default: [],
+    },
+    contact: {
+      type: contactSchema2,
+      required: true,
+    },
+    EstimationAmount: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,   
+  }
+);
+
+function arrayLimit(val) {
+  return val.length <= 100;
+}
+ 
 // Export all models
 module.exports = {
   VerifiedUser: mongoose.model('VerifiedUser', VerifiedUserSchema),
@@ -98,4 +184,5 @@ module.exports = {
   Image: mongoose.model('Image', ImageSchema),
   Subscribe: mongoose.model('Subscribe', subscriptionSchema),
   Contact: mongoose.model('Contact', contactSchema),
+  EstimationOrder: mongoose.model('EstimationOrder', estimationOrderSchema),
 };
