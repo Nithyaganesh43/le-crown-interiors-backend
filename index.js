@@ -19,6 +19,8 @@ app.use('/chatbot', chat);
 app.use('/subscribe', Subscribe);
 app.use('/contact', Contact);
 app.use('/estimationOrder', EstimationOrder);
+const adminRouter = require('./src/router/admin');
+app.use('/admin', adminRouter);
 // app.get('/env',(req,res)=>{
 //   res.send(global.Config.get(req.body.API) ?? "Sorry");
 // })

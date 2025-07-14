@@ -1,4 +1,4 @@
-const { subscribe } = require('diagnostics_channel');
+
 const mongoose = require('mongoose');
 
 // Image Schema
@@ -26,6 +26,7 @@ const VerifiedUserSchema = new mongoose.Schema(
   {
     fingerprint: { type: String, required: true },
     phoneNumber: { type: String, unique: true, required: true },
+    role : { type: String, default : "user" },
   },
   { timestamps: true }
 );
