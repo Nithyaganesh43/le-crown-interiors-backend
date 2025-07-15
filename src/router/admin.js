@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { VerifiedUser, EstimationOrder, Chat, Subscribe, Contact } = require('../model/Model');
-const { adminAuth } = require('../middleware/auth');
-const mongoose = require('mongoose');
-
-// Protect all routes
+const { adminAuth } = require('../middleware/auth'); 
 router.use(adminAuth);
-
-// 1. Get all users (with optional filters)
+ 
 router.get('/users', async (req, res) => {
   try {
     const { from, to, phoneNumber } = req.query;

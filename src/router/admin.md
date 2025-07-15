@@ -2,23 +2,70 @@
 
 All admin endpoints are protected and require a valid admin JWT cookie (`authToken`) with a user object containing `role: "admin"`.
 
-**Base URL:** `@https://le-crown-interiors-backend.onrender.com/admin`
+**Base URL:** `https://le-crown-interiors-backend.onrender.com`
 
 ---
 
-## Authentication
+## Admin Login
 
-All endpoints require a valid admin JWT in the `authToken` cookie. The user object in the token must have `role: "admin"`.
+Authenticate as an admin to access protected endpoints. On successful login, a secure `authToken` cookie is set in the browser.
 
-- **Error Codes:**
-  - `401` Unauthorized: Not logged in
-  - `403` Forbidden: Not an admin
-  - `500` Internal server error
+- **Endpoint:** `/auth/login`
+- **Method:** GET
+- **Description:** Authenticate as admin. Returns a JWT cookie if credentials are valid.
+- **Request Query Parameters:**
+  - `username` (required, string): Admin username
+  - `password` (required, string): Admin password
 
-**Example Cookie:**
+### Example Request
+```http
+GET /auth/login?username=adminUser&password=SuperSecretPassword123
 ```
-authToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...;
+
+### Success Response
+- **Status:** 200 OK
+- **Set-Cookie:** `authToken=<JWT>; HttpOnly; Secure; SameSite=None`
+- **Body:**
+```json
+{
+  "status": true,
+  "message": "Login successful"
+}
 ```
+
+### Error Responses
+- **Invalid Credentials:**
+  - **Status:** 401 Unauthorized
+  - **Body:**
+    ```json
+    {
+      "status": false,
+      "message": "Invalid username or password"
+    }
+    ```
+- **Missing Fields:**
+  - **Status:** 500 Internal Server Error
+  - **Body:**
+    ```json
+    {
+      "status": false,
+      "message": "Authentication failed"
+    }
+    ```
+- **Server Error:**
+  - **Status:** 500 Internal Server Error
+  - **Body:**
+    ```json
+    {
+      "status": false,
+      "message": "Authentication failed"
+    }
+    ```
+
+### Cookie Handling
+- The `authToken` cookie is required for all subsequent admin requests.
+- The cookie is `HttpOnly`, `Secure`, and `SameSite=None` for security.
+- Include the cookie in your requests to access protected endpoints.
 
 ---
 
