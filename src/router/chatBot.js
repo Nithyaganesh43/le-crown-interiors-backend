@@ -76,7 +76,7 @@ chat.post('/chat', async (req, res) => {
       { role: 'user', content: trimmedMessage },
     ];
 
-    const openai = new OpenAI({ apiKey: global.Config.get('OPEN_AI_KEY') });
+    const openai = new OpenAI({ apiKey: process.env.OPEN_AI_KEY });
 
     const aiResponse = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

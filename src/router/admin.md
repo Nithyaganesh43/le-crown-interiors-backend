@@ -75,18 +75,18 @@ GET /auth/login?username=adminUser&password=SuperSecretPassword123
 - **Method:** GET
 - **Description:** Retrieve all users. Supports filtering by registration date and phone number.
 - **Query Parameters:**
-  - `from` (optional, ISO date): Start date for registration filter
-  - `to` (optional, ISO date): End date for registration filter
-  - `phoneNumber` (optional, string): Filter by phone number
+  - `from` (optional, ISO date): Start date for registration filter (e.g., `2024-01-01`)
+  - `to` (optional, ISO date): End date for registration filter (e.g., `2024-06-01`)
+  - `phoneNumber` (optional, string): Filter by phone number (e.g., `9876543210`)
 - **Response:** Array of user objects
 
 **User Object Structure:**
 ```json
 {
   "_id": "665f1c2e8b1e2a0012a3b456",
-  "fingerprint": "string",
+  "fingerprint": "abc123def456",
   "phoneNumber": "9876543210",
-  "role": "user" | "admin",
+  "role": "user",
   "createdAt": "2024-06-01T12:34:56.789Z",
   "updatedAt": "2024-06-01T12:34:56.789Z"
 }
@@ -94,23 +94,50 @@ GET /auth/login?username=adminUser&password=SuperSecretPassword123
 
 **Example Request:**
 ```http
-GET /admin/users?from=2024-01-01&to=2024-06-01
-Cookie: authToken=...;
+GET /admin/users?from=2024-01-01&to=2024-06-01&phoneNumber=9876543210
+Cookie: authToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluVXNlciIsInJvbGUiOiJhZG1pbiIsInBhc3N3b3JkIjoiU3VwZXJTZWNyZXRQYXNzd29yZDEyMyIsImlhdCI6MTY5ODg4ODg4OH0.abc123def456;
 ```
-**Example Response:**
+
+**Example Success Response:**
 ```json
 [
   {
     "_id": "665f1c2e8b1e2a0012a3b456",
-    "fingerprint": "abc123",
+    "fingerprint": "abc123def456",
     "phoneNumber": "9876543210",
     "role": "user",
     "createdAt": "2024-06-01T12:34:56.789Z",
     "updatedAt": "2024-06-01T12:34:56.789Z"
   },
-  ...
+  {
+    "_id": "665f1c2e8b1e2a0012a3b457",
+    "fingerprint": "def789ghi012",
+    "phoneNumber": "9123456789",
+    "role": "admin",
+    "createdAt": "2024-05-15T09:20:30.123Z",
+    "updatedAt": "2024-05-15T09:20:30.123Z"
+  }
 ]
 ```
+
+**Example Error Responses:**
+- **Not Authenticated:**
+  - **Status:** 401 Unauthorized
+  - **Body:**
+    ```json
+    { "error": "Failed to fetch users" }
+    ```
+- **Server Error:**
+  - **Status:** 500 Internal Server Error
+  - **Body:**
+    ```json
+    { "error": "Failed to fetch users" }
+    ```
+
+**Handling Tips:**
+- Always include a valid `authToken` cookie in your request.
+- Use ISO date strings for `from` and `to` parameters.
+- Filter by phone number for more targeted results.
 
 ---
 
