@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const serverInit = express.Router();
 const cors = require('cors');
 
+
 const allowedOrigins = [
   'https://admin-le-crown.vercel.app',
   'http://127.0.0.1:5500',
