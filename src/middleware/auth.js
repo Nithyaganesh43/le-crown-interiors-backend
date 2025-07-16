@@ -42,8 +42,8 @@ const adminAuth = async (req, res, next) => {
   }
 };
 const login = async (req, res) => {
-  const { username, password } = req.query;
-  if(username === process.env.USERNAME && password === process.env.PASSWORD){
+  const { username, password } = req.body; 
+  if(username === process.env.ADMIN && password === process.env.PASSWORD){
     const token = jwt.sign({ username, role: 'admin', password: process.env.PASSWORD}, process.env.PASSWORD);
     res.cookie('authToken', token, { httpOnly: true, secure: true, sameSite: 'None' });
     res.json({ status: true, message: 'Login successful' });

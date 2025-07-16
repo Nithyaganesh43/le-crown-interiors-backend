@@ -17,7 +17,7 @@ const { login } = require('./src/middleware/auth');
 
 app.use(rateLimiter);
 app.use('/otp', otpRoute); 
-app.use('/auth/login', login);
+app.post('/auth/login', login);
 app.use('/image', imageRoute);
 app.use('/chatbot', chat);
 app.use('/subscribe', Subscribe);
