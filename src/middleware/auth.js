@@ -45,7 +45,12 @@ const login = async (req, res) => {
   const { username, password } = req.body; 
   if(username === process.env.ADMIN && password === process.env.PASSWORD){
     const token = jwt.sign({ username, role: 'admin', password: process.env.PASSWORD}, process.env.PASSWORD);
-    res.cookie('authToken', token, { httpOnly: true, secure: true, sameSite: 'None' });
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None'
+    });
+    
     res.json({ status: true, message: 'Login successful' });
   }else{
     res.status(401).json({ status: false, message: 'Invalid username or password' });
