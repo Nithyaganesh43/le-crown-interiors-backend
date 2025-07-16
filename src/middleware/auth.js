@@ -28,6 +28,7 @@ module.exports = auth.use(async (req, res, next) => {
 
 const adminAuth = async (req, res, next) => {
   try {
+    console.log("Auth Debug - Cookies Received:", req.cookies);
     const userToken = req.cookies?.authToken;
     if (!userToken) throw new Error('Token missing');
 
