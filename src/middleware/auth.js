@@ -23,16 +23,18 @@ module.exports = auth.use(async (req, res, next) => {
     res.status(500).json({ status: false, message: 'Authentication failed' });
 
   }
-});
+}); 
 
-// Admin-only middleware
+
 const adminAuth = async (req, res, next) => {
   try {
     const userToken = req.cookies?.authToken;
     if (!userToken) throw new Error('Token missing');
+
     const decoded = jwt.verify(userToken, process.env.PASSWORD);
-    const { role , password } = decoded;
-    if(role === 'admin' && password === process.env.PASSWORD){
+    const { role, password } = decoded;
+
+    if (role === 'admin' && password === process.env.PASSWORD) {
       next();
     } else {
       res.status(403).send('Admin access required');
@@ -41,20 +43,27 @@ const adminAuth = async (req, res, next) => {
     res.status(500).json({ status: false, message: 'Authentication failed' });
   }
 };
+
 const login = async (req, res) => {
-  const { username, password } = req.body; 
-  if(username === process.env.ADMIN && password === process.env.PASSWORD){
-    const token = jwt.sign({ username, role: 'admin', password: process.env.PASSWORD}, process.env.PASSWORD);
+  const { username, password } = req.body;
+
+  if (username === process.env.ADMIN && password === process.env.PASSWORD) {
+    const token = jwt.sign(
+      { username, role: 'admin', password: process.env.PASSWORD },
+      process.env.PASSWORD
+    );
+
     res.cookie('authToken', token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'None'
+      sameSite: 'None',
     });
-    
+
     res.json({ status: true, message: 'Login successful' });
-  }else{
+  } else {
     res.status(401).json({ status: false, message: 'Invalid username or password' });
   }
-}
+};
+
 module.exports.adminAuth = adminAuth;
 module.exports.login = login;
