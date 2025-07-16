@@ -1,5 +1,5 @@
 const rateLimitWindowMs = 15 * 60 * 1000; // 15 minutes
-const maxRequests = 15;
+const maxRequests = 1500;
 const ipRequestMap = new Map();
 
 function getClientIp(req) {
