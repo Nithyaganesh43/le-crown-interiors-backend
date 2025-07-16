@@ -41,7 +41,7 @@ const adminAuth = async (req, res, next) => {
       res.status(403).send('Admin access required');
     }
   } catch (err) {
-    res.status(500).json({ status: false, message: 'Authentication failed' });
+    res.status(500).json({ status: false, message: err.message });
   }
 };
 
