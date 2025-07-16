@@ -20,7 +20,7 @@ const allowedOrigins = [
 serverInit.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || true ) callback(null, true);
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
       else callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
