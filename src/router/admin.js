@@ -43,4 +43,37 @@ router.get('/getAllContacts', async (req, res) => {
   }
 }); 
 
+router.get('/getDashboard', async (req, res) => {
+  try { 
+    const estimationAgg = await EstimationOrder.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalEstimations: { $sum: 1 },
+          totalEstimationValue: {
+            $sum: {
+              $toInt: "$EstimationAmount"
+            }
+          }
+        }
+      }
+    ]);
+    const totalEstimations = estimationAgg[0]?.totalEstimations || 0;
+    const totalEstimationValue = estimationAgg[0]?.totalEstimationValue || 0;
+ 
+    const totalUsers = await VerifiedUser.countDocuments();
+ 
+    const contactQueries = await Contact.countDocuments();
+
+    res.json({
+      totalEstimations,
+      totalEstimationValue,
+      totalUsers,
+      contactQueries
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch dashboard data', details: err.message });
+  }
+});
+
 module.exports = router;
