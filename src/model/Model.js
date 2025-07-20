@@ -167,10 +167,11 @@ const estimationOrderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    state : {
-      type : String,
-      default : "Active"
-    }
+    status: {
+      type: String,
+      enum: ['active', 'pending', 'completed'],
+      default: 'pending'
+    } 
   },
   {
     timestamps: true,   

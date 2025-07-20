@@ -28,6 +28,10 @@ router.get('/getAllEstimationOrders', async (req, res) => {
 router.put('/updateEstimationStatus', async (req, res) => {
   try {
     const { EstimationOrderId, status } = req.body;
+    const allowedStatuses = ['active', 'pending', 'completed'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status value' });
+    }
     const result = await EstimationOrder.findByIdAndUpdate(
       EstimationOrderId,
       { $set: { status } },
