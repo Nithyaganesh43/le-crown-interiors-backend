@@ -25,6 +25,21 @@ router.get('/getAllEstimationOrders', async (req, res) => {
   }
 });
  
+router.put('/updateEstimationStatus', async (req, res) => {
+  try {
+    const { EstimationOrderId, status } = req.body;
+    const result = await EstimationOrder.findByIdAndUpdate(
+      EstimationOrderId,
+      { $set: { status } },
+      { new: true }
+    );
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to update estimation status' });
+  }
+});
+
+
 router.get('/getAllSubscriptions', async (req, res) => {
   try {
     const subs = await Subscribe.find({}).sort({ at: -1 });

@@ -167,6 +167,10 @@ const estimationOrderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    state : {
+      type : String,
+      default : "Active"
+    }
   },
   {
     timestamps: true,   
