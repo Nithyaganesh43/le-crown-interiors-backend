@@ -41,14 +41,13 @@ const adminAuth = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.PASSWORD);
-    if (decoded.role !== 'admin' || decoded.username !== process.env.ADMIN) {
+    const {username,password } = jwt.verify(token, process.env.PASSWORD);
+    if (username !== "admin" && password !== "admin@123") { 
       return res.status(403).json({ 
         status: false, 
         message: 'Admin access required' 
       });
-    }
-
+    } 
     next();
   } catch (err) {
     res.status(401).json({ 
@@ -58,7 +57,7 @@ const adminAuth = async (req, res, next) => {
   }
 };
 
-const login = async (req, res) => {
+const adminLogin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -69,19 +68,15 @@ const login = async (req, res) => {
       });
     }
 
-    if (username === process.env.ADMIN && password === process.env.PASSWORD) {
+    // if (username === "process.env.ADMIN" && password === process.env.PASSWORD) {
+      if (username === "admin" && password === "admin@123") { 
+        
       const token = jwt.sign(
-        { username, role: 'admin' },
+        { username,password },
         process.env.PASSWORD,
-        { expiresIn: '2h' }
+        { expiresIn: '7d' }
       );
-      
-      res.cookie('authToken', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 2 * 60 * 60 * 1000 // 2 hours
-      });
-      
+       
       res.json({ status: true, message: 'Login successful', token });
     } else {
       res.status(401).json({ status: false, message: 'Invalid username or password' });
@@ -95,4 +90,4 @@ const login = async (req, res) => {
 };
 
 module.exports.adminAuth = adminAuth;
-module.exports.login = login;
+module.exports.adminLogin = adminLogin;

@@ -13,11 +13,9 @@ const Contact = require("./src/router/contactUs");
 const EstimationOrder = require("./src/router/estimation");
 const rateLimiter = require('./src/middleware/rateLimiter');
 const adminRouter = require('./src/router/admin'); 
-const { login } = require('./src/middleware/auth');
 
 app.use(rateLimiter);
-app.use('/otp', otpRoute); 
-app.post('/auth/login', login);
+app.use('/otp', otpRoute);  
 app.use('/image', imageRoute);
 app.use('/chatbot', chat);
 app.use('/subscribe', Subscribe);
