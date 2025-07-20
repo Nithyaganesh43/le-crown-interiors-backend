@@ -22,10 +22,7 @@ app.use('/subscribe', Subscribe);
 app.use('/contact', Contact);
 app.use('/estimationOrder', EstimationOrder);
 app.use('/admin', adminRouter);
-
-// app.get('/env',(req,res)=>{
-//   res.send(global.Config.get(req.body.API) ?? "Sorry");
-// })
+ 
 app.use((req, res) => res.send(doc));
 
 connectToDb()
