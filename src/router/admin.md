@@ -1,696 +1,402 @@
-# Admin API Documentation
+# Admin Dashboard Build Prompt for Le Crown Interiors
 
-All admin endpoints are protected and require a valid admin JWT cookie (`authToken`) with a user object containing `role: "admin"`.
+Build a comprehensive admin dashboard for Le Crown Interiors with the following specifications:
 
-**Base URL:** `https://le-crown-interiors-backend.onrender.com`
+## Core Requirements
 
----
+### 1. Primary Focus: Estimations Management
+- **Estimation Orders should be the main dashboard feature** with prominent placement
+- Display estimation cards with key details: customer name, contact, estimation amount, deadline, room types
+- Show estimation statistics: total orders, total value, average order value
+- Enable detailed view for each estimation with all specifications (wood type, hardware, workmanship, surface finish, additional requirements)
+- Export functionality for estimation data (CSV format)
+- Handle empty states gracefully when no estimations exist
 
-## Admin Login
+### 2. Authentication System
+- Login page with username/password fields (DONT SHOW ANY default: username: , password: )
+- Store JWT token securely using sessionStorage
+- Handle all auth error cases: missing fields, invalid credentials, token expiry, missing headers
+- Auto-redirect to login on 401/403 errors
+- Clean logout functionality with token cleanup
 
-- **Endpoint:** `/auth/login`
-- **Method:** GET
-- **Request Query Parameters:**
-  - `username` (required, string): Admin username
-  - `password` (required, string): Admin password
+### 3. Dashboard Sections (in priority order):
+1. **Estimations** (Primary - 40% of focus)
+2. **Users Management** (25% of focus) 
+3. **Contact Queries** (20% of focus)
+4. **Subscriptions** (15% of focus)
 
-### Example Request
-```http
-GET /auth/login 
-body { 
-    "username": "admin username",
-    "password": "admin password"
-} 
+## Design Requirements
+
+### Visual Design
+- **Clean, modern, professional theme** - use a business-appropriate color scheme (blues, grays, whites)
+- **NO rounded borders anywhere** - use sharp, clean rectangular edges
+- Simple typography: Use system fonts like Inter, Roboto, or similar clean sans-serif
+- Minimal shadows and effects - focus on clean lines and good contrast
+- Use data tables with zebra striping for better readability
+- Cards layout for summary statistics
+- Consistent spacing and alignment throughout
+
+### Layout & Navigation
+- Side navigation bar with clear icons and labels
+- Top header with user info and logout button
+- Breadcrumb navigation for deep sections
+- Search functionality in each section
+- Pagination for large datasets (handle 0 to any number of records)
+- Loading states and empty states with clear messaging
+
+## Technical Requirements
+
+### Responsive Design
+- **Mobile-first approach** - must work perfectly on phones (320px and up)
+- Tablet optimization (768px and up)
+- Desktop optimization (1024px and up)
+- Collapsible sidebar on mobile
+- Touch-friendly buttons and interactions
+- Horizontal scroll for tables on mobile if needed
+
+### Auto-scaling & Performance
+- Handle datasets from 0 records to thousands efficiently
+- Implement client-side pagination and sorting
+- Lazy loading for heavy components
+- Debounced search inputs
+- Efficient state management
+- Configurable page sizes (10, 25, 50, 100 items)
+
+### Data Management
+- Real-time filtering without page reloads
+- Sort functionality for all table columns
+- Search across multiple fields simultaneously
+- Export data functionality (CSV download)
+- Handle empty arrays gracefully with proper messaging
+
+## API Integration Details
+
+**Base URL:** `https://le-crown-interiors-backend.onrender.com/admin`
+**Authentication:** Bearer Token in Authorization header
+
+### Authentication Flow
+```javascript
+// Login
+POST /login
+Body: { "username": "username", "password": "ADMIN'Spassword" }
+Response: { "status": true, "message": "Login successful", "token": "<JWT_TOKEN>" }
+
+// Use token in all subsequent requests
+Headers: { "Authorization": "Bearer <token>" }
 ```
 
-### Success Response
-- **Status:** 200 OK
-- **Set-Cookie:** `authToken=<JWT>; HttpOnly; Secure; SameSite=None`
-- **Body:**
-```json
+### API Endpoints:
+1. **POST /login** - Authentication
+2. **GET /getAllEstimationOrders** - All estimation orders
+3. **GET /getAllUsers** - All verified users  
+4. **GET /getAllContacts** - All contact form submissions
+5. **GET /getAllSubscriptions** - All email subscriptions
+
+### Error Handling Requirements
+Handle these specific error responses:
+
+**Authentication Errors:**
+- `{ "status": false, "message": "Username and password are required" }` (400)
+- `{ "status": false, "message": "Invalid username or password" }` (401)
+- `{ "status": false, "message": "Authorization header missing or invalid" }` (401)
+- `{ "status": false, "message": "Token missing" }` (401)
+- `{ "status": false, "message": "Invalid or expired token" }` (401)
+- `{ "status": false, "message": "Admin access required" }` (403)
+
+**Data Fetch Errors:**
+- `{ "error": "Failed to fetch estimation orders" }` (500)
+- `{ "error": "Failed to fetch users" }` (500)
+- `{ "error": "Failed to fetch contacts" }` (500)
+- `{ "error": "Failed to fetch subscriptions" }` (500)
+
+## Feature Specifications
+
+### Dashboard Overview Page
+- Key metrics cards: Total Estimations, Total Estimation Value, Total Users, Total Contacts
+- Recent estimations preview (latest 5-10)
+- Quick statistics with proper handling for zero values
+- Charts showing data trends (handle empty data gracefully)
+
+### Estimation Orders Page (Most Important)
+- **Prominent display of estimation cards/table**
+- Each estimation shows:
+  - Customer details: `contact.fullName`, `contact.phoneNumber`, `contact.email`, `contact.address`
+  - **Estimation amount (prominently displayed)**: `EstimationAmount`
+  - Room details: `rooms[]` with type, dimensions
+  - Specifications: `wood`, `hardware`, `workmanship`, `surfaceFinish`
+  - Additional services: `additional[]`
+  - Deadline: `deadline`
+  - Creation date: `createdAt`
+- Search across customer name, email, phone
+- Sort by amount, date, customer name
+- Export to CSV functionality
+
+### Users Management
+- Display all verified users from `getAllUsers`
+- Show: phone number, role, registration date
+- Search by phone number
+- User count statistics
+- Handle cases where user list is empty
+
+### Contact Queries
+- Display all contact submissions from `getAllContacts`
+- Show: `name`, `phoneNumber`, `help`, `description`, submission date (`at`)
+- Search by name or phone number
+- Priority indicators for urgent queries
+- Export functionality
+
+### Subscriptions Management
+- Display all email subscriptions from `getAllSubscriptions`
+- Show: `email`, subscription date (`at`)
+- Search by email
+- Export subscriber list
+- Subscription growth metrics
+
+## Data Structure Examples
+
+### Estimation Order Object:
+```javascript
+{
+  "_id": "orderid",
+  "rooms": [
+    { "type": "bedroom", "length": "12", "width": "14", "height": "10" }
+  ],
+  "wood": "Teak",
+  "hardware": "Hettich", 
+  "workmanship": "Premium",
+  "surfaceFinish": "Laminate",
+  "deadline": "30 days",
+  "additional": ["Loft", "Modular Kitchen"],
+  "contact": {
+    "fullName": "Arun",
+    "phoneNumber": "9876543210", 
+    "email": "arun@example.com",
+    "address": "Coimbatore"
+  },
+  "EstimationAmount": "1,50,000",
+  "createdAt": "2025-07-18T08:15:00.000Z"
+}
+```
+
+### User Object:
+```javascript
+{
+  "_id": "123...",
+  "fingerprint": "abc123",
+  "phoneNumber": "+91XXXXXXXXXX", 
+  "role": "user",
+  "createdAt": "2024-07-10T12:00:00.000Z",
+  "updatedAt": "2024-07-10T12:00:00.000Z"
+}
+```
+
+## Error Handling & UX
+- **Comprehensive token management**: Handle all auth error scenarios
+- Graceful error messages for API failures
+- Retry mechanisms for failed requests
+- Loading skeletons while data fetches
+- **Empty state handling**: Proper messages when arrays are empty (0 records)
+- Confirmation dialogs for destructive actions
+- Toast notifications for successful actions
+- Offline state indicators
+- Auto-logout on token expiry with redirect to login
+
+## Build Instructions
+- Use React with TypeScript for better code quality
+- Implement proper TypeScript interfaces for all API responses
+- Use a state management solution (Redux Toolkit or Zustand)
+- Include proper error boundaries
+- Use modern CSS (Flexbox/Grid) or Tailwind CSS
+- Ensure all components handle empty arrays (length 0)
+- Add proper loading states for all async operations
+- Implement proper token storage and cleanup
+- Add comprehensive error handling for all API scenarios
+
+## Critical Implementation Notes
+1. **Handle variable data volumes**: APIs return 0 to any number of records
+2. **Token security**: Store in sessionStorage, clear on logout/error
+3. **Error resilience**: Handle all specified error cases gracefully  
+4. **Empty states**: Show meaningful messages when no data exists
+5. **Mobile optimization**: Ensure touch-friendly interactions
+6. **Performance**: Efficient rendering for large datasets
+
+## Expected Output
+A fully functional, bug-free admin dashboard that prioritizes estimation management while providing comprehensive business oversight tools. The interface should feel professional, handle all error scenarios gracefully, work with any volume of data (0 to thousands), and be intuitive across all device types.
+
+Admin API Documentation
+Base URL: https://le-crown-interiors-backend.onrender.com/admin
+Auth Type: Bearer Token (Authorization: Bearer <token>)
+
+🔐 1. Admin Login
+POST /login
+Used to generate admin JWT token.
+
+Request Body:
+
+
+{
+  "username": "admin",
+  "password": "admin@123"
+}
+Validations:
+
+username and password must be non-empty strings.
+
+Returns 400 if missing.
+
+Returns 401 if credentials are invalid.
+
+Success Response:
+
+
 {
   "status": true,
-  "message": "Login successful"
-  ,"token":"access token"
+  "message": "Login successful",
+  "token": "<JWT_TOKEN>"
 }
-```
+Failure Responses:
 
-### Error Responses
-- **Invalid Credentials:**
-  - **Status:** 401 Unauthorized
-  - **Body:**
-    ```json
-    {
-      "status": false,
-      "message": "Invalid username or password"
-    }
-    ```
-- **Missing Fields:**
-  - **Status:** 500 Internal Server Error
-  - **Body:**
-    ```json
-    {
-      "status": false,
-      "message": "Authentication failed"
-    }
-    ```
-- **Server Error:**
-  - **Status:** 500 Internal Server Error
-  - **Body:**
-    ```json
-    {
-      "status": false,
-      "message": "Authentication failed"
-    }
-    ```
- 
----
+Missing fields:
 
-## 1. Get All Users
 
-- **Endpoint:** `/admin/users`
-- **Method:** GET
-- **Description:** Retrieve all users. Supports filtering by registration date and phone number.
-- **Query Parameters:**
-  - `from` (optional, ISO date): Start date for registration filter (e.g., `2024-01-01`)
-  - `to` (optional, ISO date): End date for registration filter (e.g., `2024-06-01`)
-  - `phoneNumber` (optional, string): Filter by phone number (e.g., `9876543210`)
-- **Response:** Array of user objects
+{ "status": false, "message": "Username and password are required" }
+Wrong credentials:
 
-**User Object Structure:**
-```json
-{
-  "_id": "665f1c2e8b1e2a0012a3b456",
-  "fingerprint": "abc123def456",
-  "phoneNumber": "9876543210",
-  "role": "user",
-  "createdAt": "2024-06-01T12:34:56.789Z",
-  "updatedAt": "2024-06-01T12:34:56.789Z"
-}
-```
 
-**Example Request:**
-```http
-GET /admin/users 
-Authheader:bearer authToken;
-```
+{ "status": false, "message": "Invalid username or password" }
+🔐 Token Usage & Validation
+Use the returned token in all protected APIs via the Authorization header:
 
-**Example Success Response:**
-```json
+
+Authorization: Bearer <token>
+Failure Responses (Common for all endpoints below):
+
+Missing header:
+
+
+{ "status": false, "message": "Authorization header missing or invalid" }
+Token missing:
+
+
+{ "status": false, "message": "Token missing" }
+Token invalid/expired:
+
+
+{ "status": false, "message": "Invalid or expired token" }
+Wrong credentials inside token:
+
+
+{ "status": false, "message": "Admin access required" }
+👥 2. Get All Verified Users
+GET /getAllUsers
+Returns all registered verified users (sorted by latest).
+
+Success Response:
+
+
 [
   {
-    "_id": "665f1c2e8b1e2a0012a3b456", 
-    "phoneNumber": "9876543210",
+    "_id": "123...",
+    "fingerprint": "abc123",
+    "phoneNumber": "+91XXXXXXXXXX",
     "role": "user",
-    "createdAt": "2024-06-01T12:34:56.789Z", 
+    "createdAt": "2024-07-10T12:00:00.000Z",
+    "updatedAt": "2024-07-10T12:00:00.000Z",
+    "__v": 0
   },
-  {
-    "_id": "665f1c2e8b1e2a0012a3b457", 
-    "phoneNumber": "9123456789",
-    "role": "admin",
-    "createdAt": "2024-05-15T09:20:30.123Z", 
-  }
+  ...
 ]
-```
+Failure (DB error):
 
-**Example Error Responses:**
-- **Not Authenticated:**
-  - **Status:** 401 Unauthorized
-  - **Body:**
-    ```json
-    { "error": "Failed to fetch users" }
-    ```
-- **Server Error:**
-  - **Status:** 500 Internal Server Error
-  - **Body:**
-    ```json
-    { "error": "Failed to fetch users" }
-    ```
 
-**Handling Tips:**
-- Always include a valid `authToken` cookie in your request.
-- Use ISO date strings for `from` and `to` parameters.
-- Filter by phone number for more targeted results.
+{ "error": "Failed to fetch users" }
+📦 3. Get All Estimation Orders
+GET /getAllEstimationOrders
+Returns all submitted estimation orders.
 
----
+Success Response Example:
 
-## 2. Get All Estimation Orders
 
-- **Endpoint:** `/admin/estimation-orders`
-- **Method:** GET
-- **Description:** Retrieve all estimation orders. Supports filtering by date and user email.
-- **Query Parameters:**
-  - `from` (optional, ISO date): Start date
-  - `to` (optional, ISO date): End date
-  - `email` (optional, string): Filter by contact email
-- **Response:** Array of estimation order objects
-
-**Estimation Order Object Structure:**
-```json
-[
-    {
-        "_id": "68694c55f3f8aeb5c5a36293",
-        "rooms": [
-            {
-                "type": "Kitchen",
-                "length": "12",
-                "width": "12",
-                "height": "12",
-                "_id": "68694c55f3f8aeb5c5a36294"
-            }
-        ],
-        "wood": "Plywood",
-        "hardware": "Basic Hardware",
-        "workmanship": "Standard workmanship",
-        "surfaceFinish": "Paint Finish",
-        "deadline": "flexible",
-        "additional": [
-            "accessories",
-            "lighting"
-        ],
-        "contact": {
-            "fullName": "Fhfj",
-            "phoneNumber": "122115585",
-            "email": "jjj@gmail.com",
-            "address": "Jjjiij",
-            "_id": "68694c55f3f8aeb5c5a36295"
-        },
-        "EstimationAmount": "68960",
-        "createdAt": "2025-07-05T16:01:25.572Z",
-        "updatedAt": "2025-07-05T16:01:25.572Z",
-        "__v": 0
-    },
-    {
-        "_id": "68694587f3f8aeb5c5a36289",
-        "rooms": [
-            {
-                "type": "Living Room",
-                "length": "12",
-                "width": "12",
-                "height": "12",
-                "_id": "68694587f3f8aeb5c5a3628a"
-            }
-        ],
-        "wood": "MDF",
-        "hardware": "Basic Hardware",
-        "workmanship": "Standard workmanship",
-        "surfaceFinish": "Paint Finish",
-        "deadline": "2025-10-03",
-        "additional": [],
-        "contact": {
-            "fullName": "Mohammed Safil",
-            "phoneNumber": "09789378657",
-            "email": "mohammedsafil.s2023cse@sece.ac.in",
-            "address": "ukkadam",
-            "_id": "68694587f3f8aeb5c5a3628b"
-        },
-        "EstimationAmount": "42320",
-        "createdAt": "2025-07-05T15:32:23.727Z",
-        "updatedAt": "2025-07-05T15:32:23.727Z",
-        "__v": 0
-    },
-    {
-        "_id": "68694550f3f8aeb5c5a36285",
-        "rooms": [
-            {
-                "type": "Living Room",
-                "length": "12",
-                "width": "12",
-                "height": "12",
-                "_id": "68694550f3f8aeb5c5a36286"
-            }
-        ],
-        "wood": "Plywood",
-        "hardware": "Basic Hardware",
-        "workmanship": "Standard workmanship",
-        "surfaceFinish": "Paint Finish",
-        "deadline": "2025-10-03",
-        "additional": [
-            "flooring"
-        ],
-        "contact": {
-            "fullName": "Mohammed Safil",
-            "phoneNumber": "09789378657",
-            "email": "mohammedsafil.s2023cse@sece.ac.in",
-            "address": "ukkadam",
-            "_id": "68694550f3f8aeb5c5a36287"
-        },
-        "EstimationAmount": "46640",
-        "createdAt": "2025-07-05T15:31:28.924Z",
-        "updatedAt": "2025-07-05T15:31:28.924Z",
-        "__v": 0
-    },
-    {
-        "_id": "6867fce2f3f8aeb5c5a3627d",
-        "rooms": [
-            {
-                "type": "Bedroom",
-                "length": "12",
-                "width": "10",
-                "height": "8",
-                "_id": "6867fce2f3f8aeb5c5a3627e"
-            },
-            {
-                "type": "Living Room",
-                "length": "15",
-                "width": "12",
-                "height": "9",
-                "_id": "6867fce2f3f8aeb5c5a3627f"
-            }
-        ],
-        "wood": "Teak",
-        "hardware": "Brass fittings",
-        "workmanship": "High quality manual craftsmanship",
-        "surfaceFinish": "Glossy polish",
-        "deadline": "2025-08-31",
-        "additional": [
-            "Include modular wardrobe",
-            "False ceiling with lights"
-        ],
-        "contact": {
-            "fullName": "John Doe",
-            "phoneNumber": "9876543210",
-            "email": "johndoe@example.com",
-            "address": "123, Main Street, Coimbatore, Tamil Nadu",
-            "_id": "6867fce2f3f8aeb5c5a36280"
-        },
-        "EstimationAmount": "125000",
-        "createdAt": "2025-07-04T16:10:10.004Z",
-        "updatedAt": "2025-07-04T16:10:10.004Z",
-        "__v": 0
-    },
-    {
-        "_id": "6867fcd8f3f8aeb5c5a36278",
-        "rooms": [
-            {
-                "type": "Bedroom",
-                "length": "12",
-                "width": "10",
-                "height": "8",
-                "_id": "6867fcd8f3f8aeb5c5a36279"
-            },
-            {
-                "type": "Living Room",
-                "length": "15",
-                "width": "12",
-                "height": "9",
-                "_id": "6867fcd8f3f8aeb5c5a3627a"
-            }
-        ],
-        "wood": "Teak",
-        "hardware": "Brass fittings",
-        "workmanship": "High quality manual craftsmanship",
-        "surfaceFinish": "Glossy polish",
-        "deadline": "2025-08-31",
-        "additional": [
-            "Include modular wardrobe",
-            "False ceiling with lights"
-        ],
-        "contact": {
-            "fullName": "John Doe",
-            "phoneNumber": "9876543210",
-            "email": "johndoe@example.com",
-            "address": "123, Main Street, Coimbatore, Tamil Nadu",
-            "_id": "6867fcd8f3f8aeb5c5a3627b"
-        },
-        "EstimationAmount": "125000",
-        "createdAt": "2025-07-04T16:10:00.488Z",
-        "updatedAt": "2025-07-04T16:10:00.488Z",
-        "__v": 0
-    }
-]
-```
-
-**Example Request:**
-```http
-GET /admin/estimation-orders?email=mohammedsafil.s2023cse@sece.ac.in
- 
-Authheader:bearer authToken;
-```
-**Example Response:**
-```json
-[
-    {
-        "_id": "68694587f3f8aeb5c5a36289",
-        "rooms": [
-            {
-                "type": "Living Room",
-                "length": "12",
-                "width": "12",
-                "height": "12",
-                "_id": "68694587f3f8aeb5c5a3628a"
-            }
-        ],
-        "wood": "MDF",
-        "hardware": "Basic Hardware",
-        "workmanship": "Standard workmanship",
-        "surfaceFinish": "Paint Finish",
-        "deadline": "2025-10-03",
-        "additional": [],
-        "contact": {
-            "fullName": "Mohammed Safil",
-            "phoneNumber": "09789378657",
-            "email": "mohammedsafil.s2023cse@sece.ac.in",
-            "address": "ukkadam",
-            "_id": "68694587f3f8aeb5c5a3628b"
-        },
-        "EstimationAmount": "42320",
-        "createdAt": "2025-07-05T15:32:23.727Z",
-        "updatedAt": "2025-07-05T15:32:23.727Z",
-        "__v": 0
-    },
-    {
-        "_id": "68694550f3f8aeb5c5a36285",
-        "rooms": [
-            {
-                "type": "Living Room",
-                "length": "12",
-                "width": "12",
-                "height": "12",
-                "_id": "68694550f3f8aeb5c5a36286"
-            }
-        ],
-        "wood": "Plywood",
-        "hardware": "Basic Hardware",
-        "workmanship": "Standard workmanship",
-        "surfaceFinish": "Paint Finish",
-        "deadline": "2025-10-03",
-        "additional": [
-            "flooring"
-        ],
-        "contact": {
-            "fullName": "Mohammed Safil",
-            "phoneNumber": "09789378657",
-            "email": "mohammedsafil.s2023cse@sece.ac.in",
-            "address": "ukkadam",
-            "_id": "68694550f3f8aeb5c5a36287"
-        },
-        "EstimationAmount": "46640",
-        "createdAt": "2025-07-05T15:31:28.924Z",
-        "updatedAt": "2025-07-05T15:31:28.924Z",
-        "__v": 0
-    }
-]
-```
-
----
-
-## 3. Get All Users' Chat History
-
-- **Endpoint:** `/admin/chats`
-- **Method:** GET
-- **Description:** Retrieve all users' chat histories. Supports filtering by user and message time.
-- **Query Parameters:**
-  - `user` (optional, string): User identifier (phone number or unique user string)
-  - `from` (optional, ISO date): Start date for chat messages
-  - `to` (optional, ISO date): End date for chat messages
-- **Response:** Array of chat objects
-
-**Chat Object Structure:**
-```json
-[
-    {
-        "_id": "6867a70ce3463c6bbd254200",
-        "user": "user",
-        "chat": [
-            {
-                "sender": "user",
-                "message": "hi",
-                "time": "2025-07-04T10:03:59.158Z",
-                "_id": "6867a70fe3463c6bbd254201"
-            },
-            {
-                "sender": "bot",
-                "message": "Hello! How can we assist you with luxury home design, modular kitchens, or custom furniture today?",
-                "time": "2025-07-04T10:03:59.158Z",
-                "_id": "6867a70fe3463c6bbd254202"
-            },
-            ...
-        ],
-        "createdAt": "2025-07-04T10:03:59.355Z",
-        "updatedAt": "2025-07-04T10:03:59.355Z",
-        "__v": 0
-    },...
-]
-```
-
-**Example Request:**
-```http
-GET /admin/chats?user=9876543210
- 
-Authheader:bearer authToken;
-```
-**Example Response:**
-```json
 [
   {
-    "_id": "665f1c2e8b1e2a0012a3b999",
-    "user": "9876543210",
-    "chat": [
-      {
-        "sender": "user",
-        "message": "Hello!",
-        "time": "2024-06-01T12:34:56.789Z"
-      },
-      {
-        "sender": "bot",
-        "message": "Hi! How can I help you?",
-        "time": "2024-06-01T12:34:57.000Z"
-      },..
+    "_id": "orderid",
+    "rooms": [
+      { "type": "bedroom", "length": "12", "width": "14", "height": "10" }
     ],
-    "createdAt": "2024-06-01T12:34:56.789Z",
-    "updatedAt": "2024-06-01T12:34:56.789Z"
+    "wood": "Teak",
+    "hardware": "Hettich",
+    "workmanship": "Premium",
+    "surfaceFinish": "Laminate",
+    "deadline": "30 days",
+    "additional": ["Loft", "Modular Kitchen"],
+    "contact": {
+      "fullName": "Arun",
+      "phoneNumber": "9876543210",
+      "email": "arun@example.com",
+      "address": "Coimbatore"
+    },
+    "EstimationAmount": "1,50,000",
+    "createdAt": "2025-07-18T08:15:00.000Z"
   }
 ]
-```
+Failure:
 
----
 
-## 4. Get All Subscriptions
+{ "error": "Failed to fetch estimation orders" }
+📧 4. Get All Subscriptions
+GET /getAllSubscriptions
+Returns all subscribed emails with timestamp.
 
-- **Endpoint:** `/admin/subscriptions`
-- **Method:** GET
-- **Description:** Retrieve all newsletter/email subscriptions. Supports filtering by date and email.
-- **Query Parameters:**
-  - `from` (optional, ISO date): Start date
-  - `to` (optional, ISO date): End date
-  - `email` (optional, string): Filter by email
-- **Response:** Array of subscription objects
+Success Response:
 
-**Subscription Object Structure:**
-```json
-[
-    {
-        "_id": "685811e9aee909a624138eab",
-        "email": "nithyaganesh4343@gmail.com",
-        "at": "2025-06-22T14:23:37.373Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580705aee909a624138e96",
-        "email": "mohammedsafil.s2023cse@sece.ac.in",
-        "at": "2025-06-22T13:37:09.206Z",
-        "__v": 0
-    }
-]
-```
 
-**Example Request:**
-```http
-GET /admin/subscriptions?from=2024-01-01
-
-Authheader:bearer authToken;
-```
-**Example Response:**
-```json
 [
   {
-    "_id": "665f1c2e8b1e2a0012a3babc",
+    "_id": "subid",
     "email": "user@example.com",
-    "at": "2024-01-01T12:34:56.789Z"
+    "at": "2025-07-18T10:00:00.000Z"
   }
 ]
-```
+Failure:
 
----
 
-## 5. Get All Contact Information
+{ "error": "Failed to fetch subscriptions" }
+📞 5. Get All Contact Queries
+GET /getAllContacts
+Returns all help/queries submitted via contact form.
 
-- **Endpoint:** `/admin/contacts`
-- **Method:** GET
-- **Description:** Retrieve all contact form submissions. Supports filtering by date and phone number.
-- **Query Parameters:**
-  - `from` (optional, ISO date): Start date
-  - `to` (optional, ISO date): End date
-  - `phoneNumber` (optional, string): Filter by phone number
-- **Response:** Array of contact objects
+Success Response:
 
-**Contact Object Structure:**
-```json
+
 [
-    {
-        "_id": "685814793e46b00eaf33950e",
-        "name": "Nithya Ganesh",
-        "phoneNumber": "6297339610",
-        "help": "Nothing",
-        "discription": " NothingNothing",
-        "at": "2025-06-22T14:34:33.185Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580d5eaee909a624138ea8",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9999999999",
-        "help": "Gjghhh",
-        "discription": "Fhghhhhjjjjjjjjb",
-        "at": "2025-06-22T14:04:14.031Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580ab0aee909a624138ea5",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:52:48.838Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580a50aee909a624138ea3",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:51:12.447Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580a0eaee909a624138ea1",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:50:06.339Z",
-        "__v": 0
-    },
-    {
-        "_id": "685809f3aee909a624138e9f",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:49:39.435Z",
-        "__v": 0
-    },
-    {
-        "_id": "685809d9aee909a624138e9d",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "12345678900000",
-        "at": "2025-06-22T13:49:13.761Z",
-        "__v": 0
-    },
-    {
-        "_id": "6858099caee909a624138e9b",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "12345678900000",
-        "at": "2025-06-22T13:48:12.902Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580972aee909a624138e99",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaaa",
-        "discription": "aaaaaaaaaaaaa",
-        "at": "2025-06-22T13:47:30.094Z",
-        "__v": 0
-    }
+  {
+    "_id": "contactid",
+    "name": "Vishnu",
+    "phoneNumber": "9876543210",
+    "help": "Need quotation",
+    "discription": "Looking for interior work in 2BHK flat",
+    "at": "2025-07-18T10:30:00.000Z"
+  }
 ]
-```
+Failure:
 
-**Example Request:**
-```http
-GET /admin/contacts?phoneNumber=9789378657
 
-Authheader:bearer authToken;
-```
-**Example Response:**
-```json
-[
-    {
-        "_id": "68580ab0aee909a624138ea5",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:52:48.838Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580a50aee909a624138ea3",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:51:12.447Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580a0eaee909a624138ea1",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:50:06.339Z",
-        "__v": 0
-    },
-    {
-        "_id": "685809f3aee909a624138e9f",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "qwe123432111",
-        "at": "2025-06-22T13:49:39.435Z",
-        "__v": 0
-    },
-    {
-        "_id": "685809d9aee909a624138e9d",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "12345678900000",
-        "at": "2025-06-22T13:49:13.761Z",
-        "__v": 0
-    },
-    {
-        "_id": "6858099caee909a624138e9b",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaa",
-        "discription": "12345678900000",
-        "at": "2025-06-22T13:48:12.902Z",
-        "__v": 0
-    },
-    {
-        "_id": "68580972aee909a624138e99",
-        "name": "Mohammed Safil",
-        "phoneNumber": "9789378657",
-        "help": "aaaa",
-        "discription": "aaaaaaaaaaaaa",
-        "at": "2025-06-22T13:47:30.094Z",
-        "__v": 0
-    }
-]
-```
+{ "error": "Failed to fetch contacts" }
+✅ Example Token Flow
+Step 1: Call /login with correct admin credentials.
+Step 2: Store the token from response.
+Step 3: Add token to headers for further admin routes:
 
----
- 
-## Notes
-- All date filters expect ISO date strings (e.g., `2024-06-01`).
-- All responses are JSON.
-- All endpoints are GET and read-only (no mutation). 
-- All fields not shown in examples are standard MongoDB document fields. 
+
+Authorization: Bearer <token>
+Edge Cases to Handle in Frontend:
+
+Token expiry → handle 401 and force logout
+
+Server down → handle 500
+
+Missing Authorization header → handle 401
+
+Malformed token → handle 401
+
+Incorrect role inside token → 403
