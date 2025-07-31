@@ -13,6 +13,7 @@ const allowedOrigins = [
   'https://admin-le-crown.vercel.app',
   'http://127.0.0.1:5500',
   'http://localhost:5173',
+  'https://watchtower-24-7.vercel.app',
   'http://localhost:3000',
   'https://lecrowninteriosadmin.vercel.app',
   'http://192.168.1.4:5173',
